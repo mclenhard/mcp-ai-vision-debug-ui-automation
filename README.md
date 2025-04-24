@@ -1,16 +1,22 @@
-# AI Vision MCP Server
+# AI Vision Debug MCP Server
 
-A Model Context Protocol (MCP) server that provides AI-powered visual analysis capabilities for Claude and other MCP-compatible AI assistants.
+[![MCP on Glama](https://modelcontextprotocol.ai/badge/samihalawa/mcp-server-ai-vision)](https://gateway.glama.ai/servers/samihalawa/mcp-server-ai-vision)
 
-## Features
-
-- **Screenshot URL**: Capture screenshots of any website by providing a URL
-- **Visual Analysis**: Analyze UI elements, layouts, and content in screenshots
-- **File Operations**: Read and modify files with line-specific precision
-- **Report Generation**: Create comprehensive UI/UX analysis reports
-- **Debugging Session**: Maintain context across multiple analysis steps
+A ModelContextProtocol (MCP) server that gives AI models the ability to analyze, debug, and interact with web interfaces through Playwright. This server enables any AI (even those without vision capabilities) to visually inspect web pages, test UI functionality, and validate user workflows.
 
 ## Installation
+
+### Using Glama Gateway
+
+The recommended way to install this MCP server is through the [Glama Gateway](https://gateway.glama.ai/servers/samihalawa/mcp-server-ai-vision):
+
+1. Visit the server page on Glama Gateway
+2. Click "Install Server"
+3. Follow the guided installation steps
+
+### Manual Installation 
+
+If you prefer to install manually:
 
 ```bash
 # Clone the repository
@@ -20,110 +26,123 @@ cd mcp-server-ai-vision
 # Install dependencies
 npm install
 
-# Build the server
+# Build the project
 npm run build
-```
 
-## Usage
-
-### Starting the Server
-
-```bash
+# Start the server
 npm start
 ```
 
-### Configuration
+### Docker Deployment
 
-Add the server to your MCP configuration:
+For containerized deployment:
 
-```json
-{
-  "servers": {
-    "ai-vision": {
-      "command": "/path/to/node",
-      "args": ["/path/to/mcp-server-ai-vision/build/index.js"],
-      "enabled": true,
-      "port": 3005,
-      "environment": {
-        "NODE_PATH": "/path/to/node_modules",
-        "PATH": "/usr/local/bin:/usr/bin:/bin",
-        "GEMINI_API_KEY": "your-gemini-api-key"
-      }
-    }
-  }
-}
+```bash
+# Build the Docker image
+docker build -t mcp-ai-vision .
+
+# Run the container
+docker run -p 8080:8080 mcp-ai-vision
 ```
 
-### Available Tools
+## Key Features
 
-#### screenshot_url
+- **Visual Analysis**: Capture and analyze screenshots of web pages
+- **Interactive Element Mapping**: Automatically identify and map clickable elements, forms, and controls
+- **Workflow Testing**: Define and validate complete user journeys through web interfaces
+- **API Testing**: Test REST endpoints and validate responses
+- **Performance Analysis**: Measure and track page load performance metrics
+- **Visual Comparison**: Compare before/after states of web interfaces
 
-Take a screenshot of a URL using a web browser.
+## Usage Examples
 
-Parameters:
-- `url` (string, required): URL to capture a screenshot of (e.g., http://localhost:4999, https://google.com)
-- `fullPage` (boolean, optional): Whether to capture full page or just viewport. Default: false
-- `waitForSelector` (string, optional): CSS selector to wait for before taking screenshot
-- `waitTime` (number, optional): Time to wait in milliseconds before taking screenshot. Default: 1000
+### Capture and Analyze a Web Page
 
-#### analyze_screen
+```javascript
+// Example using the enhanced_page_analyzer tool
+const result = await mcp.callTool("enhanced_page_analyzer", {
+  url: "https://example.com",
+  includeConsole: true,
+  mapElements: true,
+  fullPage: true
+});
 
-Analyze a screenshot with AI vision.
+// The result contains a complete analysis of the page:
+// - Interactive elements (buttons, links, forms)
+// - Console logs
+// - Performance metrics
+// - Screenshots (annotated and plain)
+```
 
-Parameters: None (uses the most recent screenshot)
+### Validate a User Workflow
 
-#### read_file
+```javascript
+// Example using the ui_workflow_validator tool
+const workflow = await mcp.callTool("ui_workflow_validator", {
+  startUrl: "https://example.com/login",
+  taskDescription: "User login flow validation",
+  steps: [
+    {
+      description: "Enter username",
+      action: "fill",
+      selector: "#username",
+      value: "testuser"
+    },
+    {
+      description: "Enter password",
+      action: "fill",
+      selector: "#password",
+      value: "password123"
+    },
+    {
+      description: "Click login button",
+      action: "click",
+      selector: "#login-btn"
+    },
+    {
+      description: "Verify successful login",
+      action: "verifyElementVisible",
+      selector: ".dashboard-welcome"
+    }
+  ],
+  captureScreenshots: "failure"
+});
 
-Read content from a file between specified line numbers.
+// The result contains the success/failure status of each step,
+// screenshots of any failures, and an overall workflow status
+```
 
-Parameters:
-- `path` (string): Path to the file
-- `startLine` (number): Starting line number (1-indexed)
-- `endLine` (number): Ending line number (1-indexed)
+## Tools Reference
 
-#### modify_file
+The server provides the following tools:
 
-Modify content in a file between specified line numbers.
+| Tool | Description |
+|------|-------------|
+| `screenshot_url` | Capture screenshot of a URL |
+| `enhanced_page_analyzer` | Analyze page with screenshots, console logs, element mapping |
+| `ui_workflow_validator` | Execute and validate a sequence of UI interactions |
+| `api_endpoint_tester` | Test multiple API endpoints and verify responses |
+| `navigation_flow_validator` | Test a sequence of user actions across pages |
+| `dom_inspector` | Inspect DOM elements and their properties |
+| `console_monitor` | Monitor console logs on a page |
+| `performance_analysis` | Analyze page performance metrics |
+| `visual_comparison` | Compare two URLs visually and highlight differences |
+| `batch_screenshot_urls` | Screenshot multiple URLs in a grid |
+| `playwright_*` | Direct Playwright actions (navigate, click, fill, etc.) |
 
-Parameters:
-- `path` (string): Path to the file
-- `startLine` (number): Starting line number to replace (1-indexed)
-- `endLine` (number): Ending line number to replace (1-indexed)
-- `content` (string): New content to replace the specified lines
+## Text-Only Model Compatibility
 
-#### generate_report
+This server is designed to work with all AI models, not just those with vision capabilities. Screenshot analysis is transformed into structured text representations of web interfaces, enabling any text-based model to:
 
-Generate a comprehensive UI/UX analysis report.
-
-Parameters:
-- `testUrl` (string): URL of the application being tested
-- `appName` (string, optional): Name of the application being analyzed
-- `date` (string, optional): Date of the analysis (YYYY-MM-DD)
-- `observations` (object): Observations structured as components, data state, interactions, etc.
-
-## Example Workflow
-
-1. Take a screenshot of a website:
-   ```
-   screenshot_url(url: "https://example.com")
-   ```
-
-2. Analyze the screenshot:
-   ```
-   analyze_screen()
-   ```
-
-3. Generate a report based on the analysis:
-   ```
-   generate_report(testUrl: "https://example.com", observations: {...})
-   ```
-
-## Requirements
-
-- Node.js 14+
-- Playwright for browser automation
-- Gemini API key for AI vision analysis
+1. Understand page structures and layouts
+2. Locate interactive elements by descriptive attributes
+3. Execute precise UI testing workflows
+4. Analyze page contents and functionality
 
 ## License
 
-MIT 
+This project is licensed under the [ISC License](LICENSE).
+
+## Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request. 
