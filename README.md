@@ -4,6 +4,22 @@
 
 A ModelContextProtocol (MCP) server that gives AI models the ability to analyze, debug, and interact with web interfaces through Playwright. This server enables any AI (even those without vision capabilities) to visually inspect web pages, test UI functionality, and validate user workflows.
 
+## How to Use This MCP Server
+
+This MCP server is designed to be integrated with AI systems through the Model Context Protocol. There are three main ways to use it:
+
+1. **With Glama**: Install via Glama Gateway for seamless integration with Glama models
+2. **With custom MCP clients**: Connect your own AI clients using the MCP protocol
+3. **Standalone for testing**: Run locally during development
+
+Once connected, your AI model can call the available tools to interact with web interfaces, helping it to:
+
+- **Capture visual information** from web pages and interpret the contents
+- **Map and interact with UI elements** like buttons, forms, and navigational elements
+- **Validate user workflows** by simulating actual user interactions
+- **Debug web applications** by tracking console logs, performance metrics, and network activity
+- **Test API endpoints** to verify backend functionality
+
 ## Installation
 
 ### Using Glama Gateway
@@ -54,33 +70,84 @@ docker run -p 8080:8080 mcp-ai-vision
 - **Performance Analysis**: Measure and track page load performance metrics
 - **Visual Comparison**: Compare before/after states of web interfaces
 
-## Usage Examples
+## Detailed Tool Reference
 
-### Capture and Analyze a Web Page
+### 1. `screenshot_url`
 
+Captures screenshots of any URL.
+
+**Parameters:**
+- `url` (string): The URL to capture a screenshot of
+- `fullPage` (boolean, optional): Whether to capture the full page or just viewport
+- `selector` (string, optional): CSS selector to screenshot only that element
+- `waitForSelector` (string, optional): CSS selector to wait for before taking screenshot
+- `waitTime` (number, optional): Time to wait in milliseconds before taking screenshot
+- `device` (string, optional): Device to emulate (e.g., "iPhone 13", "Pixel 5")
+
+**Example:**
 ```javascript
-// Example using the enhanced_page_analyzer tool
-const result = await mcp.callTool("enhanced_page_analyzer", {
+const result = await mcp.callTool("screenshot_url", {
+  url: "https://example.com/login",
+  fullPage: true,
+  waitForSelector: "form.login",
+  waitTime: 2000
+});
+```
+
+### 2. `enhanced_page_analyzer`
+
+Performs comprehensive analysis of a web page.
+
+**Parameters:**
+- `url` (string): URL to analyze
+- `includeConsole` (boolean, optional): Whether to include console logs
+- `mapElements` (boolean, optional): Whether to map interactive elements
+- `fullPage` (boolean, optional): Whether to analyze full page
+- `waitForSelector` (string, optional): CSS selector to wait for before analysis
+- `waitTime` (number, optional): Time to wait in milliseconds
+- `device` (string, optional): Device to emulate
+
+**Example:**
+```javascript
+const analysis = await mcp.callTool("enhanced_page_analyzer", {
   url: "https://example.com",
   includeConsole: true,
   mapElements: true,
-  fullPage: true
+  fullPage: true,
+  waitTime: 3000
 });
 
-// The result contains a complete analysis of the page:
-// - Interactive elements (buttons, links, forms)
-// - Console logs
-// - Performance metrics
-// - Screenshots (annotated and plain)
+// You can then access:
+// analysis.screenshot - Base64 screenshot data
+// analysis.interactiveElements - Mapped UI elements
+// analysis.consoleMessages - Console output
+// analysis.performance - Performance metrics
 ```
 
-### Validate a User Workflow
+### 3. `ui_workflow_validator`
 
+Executes a sequence of UI interactions to simulate a user workflow.
+
+**Parameters:**
+- `startUrl` (string): Initial URL for the workflow
+- `taskDescription` (string): Description of the user task being simulated
+- `steps`: Array of step objects:
+  - `description` (string): Description of the user action
+  - `action` (string): Action type (navigate, click, fill, select, etc.)
+  - `selector` (string, optional): CSS selector for interaction
+  - `value` (string, optional): Value for fill/select actions
+  - `url` (string, optional): URL for navigate action
+  - `script` (string, optional): JavaScript for evaluate action
+  - `waitTime` (number, optional): Time to wait in milliseconds
+  - `isOptional` (boolean, optional): Whether failure should stop workflow
+- `captureScreenshots` (string): When to capture screenshots ("all", "failure", "none")
+- `device` (string, optional): Device to emulate
+
+**Example:**
 ```javascript
-// Example using the ui_workflow_validator tool
 const workflow = await mcp.callTool("ui_workflow_validator", {
   startUrl: "https://example.com/login",
-  taskDescription: "User login flow validation",
+  taskDescription: "User login and profile update flow",
   steps: [
     {
       description: "Enter username",
@@ -100,49 +167,164 @@ const workflow = await mcp.callTool("ui_workflow_validator", {
       selector: "#login-btn"
     },
     {
-      description: "Verify successful login",
+      description: "Verify dashboard is loaded",
       action: "verifyElementVisible",
       selector: ".dashboard-welcome"
+    },
+    {
+      description: "Navigate to profile page",
+      action: "click",
+      selector: "a[href='/profile']"
+    },
+    {
+      description: "Update bio information",
+      action: "fill",
+      selector: "textarea#bio",
+      value: "This is my updated profile bio."
+    },
+    {
+      description: "Save profile changes",
+      action: "click",
+      selector: "button[type='submit']"
+    },
+    {
+      description: "Verify success message appears",
+      action: "verifyText",
+      selector: ".alert-success",
+      value: "Profile updated successfully"
     }
   ],
   captureScreenshots: "failure"
 });
-
-// The result contains the success/failure status of each step,
-// screenshots of any failures, and an overall workflow status
 ```
 
-## Tools Reference
+### 4. `api_endpoint_tester`
 
-The server provides the following tools:
+Tests multiple API endpoints and verifies responses.
 
-| Tool | Description |
-|------|-------------|
-| `screenshot_url` | Capture screenshot of a URL |
-| `enhanced_page_analyzer` | Analyze page with screenshots, console logs, element mapping |
-| `ui_workflow_validator` | Execute and validate a sequence of UI interactions |
-| `api_endpoint_tester` | Test multiple API endpoints and verify responses |
-| `navigation_flow_validator` | Test a sequence of user actions across pages |
-| `dom_inspector` | Inspect DOM elements and their properties |
-| `console_monitor` | Monitor console logs on a page |
-| `performance_analysis` | Analyze page performance metrics |
-| `visual_comparison` | Compare two URLs visually and highlight differences |
-| `batch_screenshot_urls` | Screenshot multiple URLs in a grid |
-| `playwright_*` | Direct Playwright actions (navigate, click, fill, etc.) |
+**Parameters:**
+- `url` (string): Base URL of the API
+- `endpoints`: Array of endpoint objects:
+  - `path` (string): Endpoint path
+  - `method` (string): HTTP method
+  - `data` (object, optional): Request body data
+  - `headers` (object, optional): Request headers
+- `authToken` (string, optional): Auth token to include in all requests
 
-## Text-Only Model Compatibility
+**Example:**
+```javascript
+const apiTest = await mcp.callTool("api_endpoint_tester", {
+  url: "https://api.example.com/v1",
+  endpoints: [
+    {
+      path: "/users",
+      method: "GET"
+    },
+    {
+      path: "/users",
+      method: "POST",
+      data: {
+        name: "Test User",
+        email: "test@example.com"
+      }
+    },
+    {
+      path: "/users/1",
+      method: "PUT",
+      data: {
+        name: "Updated Name"
+      }
+    }
+  ],
+  authToken: "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+});
+```
 
-This server is designed to work with all AI models, not just those with vision capabilities. Screenshot analysis is transformed into structured text representations of web interfaces, enabling any text-based model to:
+### 5. `navigation_flow_validator`
+
+Tests a sequence of user actions across multiple pages.
+
+**Parameters:**
+- `startUrl` (string): URL to start the navigation flow from
+- `steps`: Array of step objects:
+  - `action` (string): Action to perform
+  - `selector` (string, optional): CSS selector
+  - `value` (string, optional): Value to input
+  - `url` (string, optional): URL to navigate to
+  - `script` (string, optional): JavaScript to evaluate
+  - `waitTime` (number, optional): Time to wait in ms
+- `captureScreenshots` (boolean, optional): Whether to capture screenshots
+- `includeConsole` (boolean, optional): Whether to include console logs
+- `device` (string, optional): Device to emulate
+
+**Example:**
+```javascript
+const navFlow = await mcp.callTool("navigation_flow_validator", {
+  startUrl: "https://example.com",
+  steps: [
+    { action: "click", selector: "a.login-link" },
+    { action: "wait", waitTime: 1000 },
+    { action: "fill", selector: "#username", value: "testuser" },
+    { action: "fill", selector: "#password", value: "password123" },
+    { action: "click", selector: "button[type='submit']" },
+    { action: "wait", waitTime: 2000 },
+    { action: "evaluate", script: "return document.title" }
+  ],
+  captureScreenshots: true,
+  includeConsole: true
+});
+```
+
+### 6. `dom_inspector`
+
+Inspects DOM elements and their properties.
+
+**Parameters:**
+- `url` (string): URL to inspect
+- `selector` (string): CSS selector to inspect
+- `includeChildren` (boolean, optional): Whether to include children elements
+- `includeStyles` (boolean, optional): Whether to include computed styles
+- `waitTime` (number, optional): Time to wait before inspecting
+
+**Example:**
+```javascript
+const elementInfo = await mcp.callTool("dom_inspector", {
+  url: "https://example.com",
+  selector: "header nav.main-nav",
+  includeChildren: true,
+  includeStyles: true
+});
+```
+
+### Additional Tools
+
+The server also provides these specialized tools:
+
+- `console_monitor`: Monitor console logs on a page
+- `performance_analysis`: Analyze page performance metrics
+- `visual_comparison`: Compare two URLs visually
+- `batch_screenshot_urls`: Take screenshots of multiple URLs
+- `playwright_navigate`, `playwright_click`, etc.: Direct Playwright actions
+
+## Integration with Non-Vision Models
+
+This server can be used with any LLM, not just those with vision capabilities. The screenshot annotations and analysis are processed into structured text descriptions that can be consumed by text-only models. This allows standard LLMs to:
 
 1. Understand page structures and layouts
 2. Locate interactive elements by descriptive attributes
 3. Execute precise UI testing workflows
 4. Analyze page contents and functionality
 
-## License
+## Troubleshooting
 
-This project is licensed under the [ISC License](LICENSE).
+- **Connection Issues**: Ensure the MCP server is running and accessible
+- **Playwright Errors**: If you encounter Playwright initialization errors, try reinstalling browsers with `npx playwright install --with-deps chromium`
+- **Memory Issues**: For large workflows, monitor memory usage and consider restarting the server if performance degrades
 
 ## Contributing
 
-Contributions are welcome! Please feel free to submit a Pull Request. 
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+## License
+
+This project is licensed under the [ISC License](LICENSE). 

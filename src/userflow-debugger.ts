@@ -342,6 +342,7 @@ export class UserFlowDebugger {
       // Simulate step execution
       for (let i = 0; i < flow.steps.length; i++) {
         const step = flow.steps[i];
+        if (!step) continue; // Skip if step is undefined
         console.log(`  ${i + 1}. ${step.description}`);
         
         // Simulate a delay for the step execution
@@ -353,7 +354,11 @@ export class UserFlowDebugger {
         if (!stepSuccess) {
           flow.status = 'failed';
           flow.success = false;
-          flow.actualResult = `Failed at step ${i + 1}: ${step.description}`;
+          if (step) {
+            flow.actualResult = `Failed at step ${i + 1}: ${step.description}`;
+          } else {
+            flow.actualResult = `Failed at step ${i + 1}`;
+          }
           console.log(`  ❌ ${flow.actualResult}`);
           this.isRunning = false;
           return flow;

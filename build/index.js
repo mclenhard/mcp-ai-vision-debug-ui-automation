@@ -129,6 +129,27 @@ const VisualComparisonSchema = z.object({
     fullPage: z.boolean().optional().describe("Whether to capture full page. Default: false"),
     selector: z.string().optional().describe("Optional CSS selector to limit comparison")
 });
+// <<< START INSERTION: UI Workflow Validator Schema >>>
+const UIWorkflowValidatorSchema = z.object({
+    startUrl: z.string().url().describe("Initial URL for the workflow"),
+    taskDescription: z.string().describe("High-level description of the user task being simulated"),
+    steps: z.array(z.object({
+        description: z.string().describe("Description of the user action for this step"),
+        action: z.enum([
+            "navigate", "click", "fill", "select", "hover", "wait", "evaluate", "screenshot",
+            "verifyText", "verifyElementVisible", "verifyElementNotVisible", "verifyUrl"
+        ]).describe("Playwright action or verification to perform"),
+        selector: z.string().optional().describe("CSS selector for interaction or verification"),
+        value: z.string().optional().describe("Value for fill/select or text/URL to verify"),
+        url: z.string().optional().describe("URL for navigate action or verification"),
+        script: z.string().optional().describe("JavaScript for evaluate action"),
+        waitTime: z.number().optional().describe("Time to wait in ms (for wait action)"),
+        isOptional: z.boolean().optional().default(false).describe("If true, failure of this step won't stop the workflow")
+    })).min(1).describe("Sequence of steps representing the user workflow (minimum 1 step)"),
+    captureScreenshots: z.enum(["all", "failure", "none"]).optional().default("failure").describe("When to capture screenshots"),
+    device: z.string().optional().describe("Optional device to emulate (e.g., 'iPhone 13', 'Pixel 5')")
+});
+// <<< END INSERTION: UI Workflow Validator Schema >>>
 // Create a class to manage the debug state and tools
 class AIVisionDebugServer {
     constructor() {
@@ -1129,16 +1150,16 @@ class AIVisionDebugServer {
                     const performance = window.performance;
                     if (!performance)
                         return null;
-                    const timingAPI = performance.timing;
-                    if (!timingAPI)
+                    const timing = performance.timing;
+                    if (!timing)
                         return null;
                     // Basic timing metrics
-                    const navigationStart = timingAPI.navigationStart;
-                    const responseStart = timingAPI.responseStart;
-                    const responseEnd = timingAPI.responseEnd;
-                    const domInteractive = timingAPI.domInteractive;
-                    const domContentLoaded = timingAPI.domContentLoadedEventEnd;
-                    const loadEventEnd = timingAPI.loadEventEnd;
+                    const navigationStart = timing.navigationStart;
+                    const responseStart = timing.responseStart;
+                    const responseEnd = timing.responseEnd;
+                    const domInteractive = timing.domInteractive;
+                    const domContentLoaded = timing.domContentLoadedEventEnd;
+                    const loadEventEnd = timing.loadEventEnd;
                     // Calculate performance metrics
                     return {
                         pageLoadTime: loadEventEnd - navigationStart,
@@ -1936,6 +1957,53 @@ class AIVisionDebugServer {
                     }
                 },
                 // <<< END INSERTED PLAYWRIGHT TOOL DEFINITION >>>
+                // <<< START INSERTION: UI Workflow Validator Tool Definition >>>
+                {
+                    name: 'ui_workflow_validator',
+                    description: 'Execute and validate a sequence of UI interactions simulating a user workflow.',
+                    inputSchema: {
+                        type: 'object',
+                        properties: {
+                            startUrl: { type: 'string', description: 'Initial URL for the workflow' },
+                            taskDescription: { type: 'string', description: 'High-level description of the user task being simulated' },
+                            steps: {
+                                type: 'array',
+                                items: {
+                                    type: 'object',
+                                    properties: {
+                                        description: { type: 'string', description: 'Description of the user action for this step' },
+                                        action: {
+                                            type: 'string',
+                                            enum: [
+                                                "navigate", "click", "fill", "select", "hover", "wait", "evaluate", "screenshot",
+                                                "verifyText", "verifyElementVisible", "verifyElementNotVisible", "verifyUrl"
+                                            ],
+                                            description: 'Playwright action or verification to perform'
+                                        },
+                                        selector: { type: 'string', description: 'CSS selector for interaction or verification', optional: true },
+                                        value: { type: 'string', description: 'Value for fill/select or text/URL to verify', optional: true },
+                                        url: { type: 'string', description: 'URL for navigate action or verification', optional: true },
+                                        script: { type: 'string', description: 'JavaScript for evaluate action', optional: true },
+                                        waitTime: { type: 'number', description: 'Time to wait in ms (for wait action)', optional: true },
+                                        isOptional: { type: 'boolean', description: 'If true, failure of this step won\'t stop the workflow', optional: true, default: false }
+                                    },
+                                    required: ['description', 'action']
+                                },
+                                minItems: 1,
+                                description: 'Sequence of steps representing the user workflow (minimum 1 step)'
+                            },
+                            captureScreenshots: {
+                                type: 'string',
+                                enum: ['all', 'failure', 'none'],
+                                description: 'When to capture screenshots (default: failure)',
+                                optional: true
+                            },
+                            device: { type: 'string', description: 'Optional device to emulate (e.g., \'iPhone 13\', \'Pixel 5\')', optional: true }
+                        },
+                        required: ['startUrl', 'taskDescription', 'steps']
+                    }
+                }
+                // <<< END INSERTION: UI Workflow Validator Tool Definition >>>
             ]
         }));
         // Call tool handler
@@ -3029,6 +3097,192 @@ class AIVisionDebugServer {
                     }
                 }
                 // <<< END INSERTED playwright_screenshot TOOL HANDLER >>>
+                // <<< START INSERTION: UI Workflow Validator Implementation >>>
+                case 'ui_workflow_validator': {
+                    try {
+                        const args = request.params.arguments;
+                        if (!args.startUrl) {
+                            throw new McpError(ErrorCode.InvalidParams, 'Start URL is required');
+                        }
+                        if (!args.taskDescription) {
+                            throw new McpError(ErrorCode.InvalidParams, 'Task description is required');
+                        }
+                        if (!args.steps || !Array.isArray(args.steps) || args.steps.length === 0) {
+                            throw new McpError(ErrorCode.InvalidParams, 'At least one step is required');
+                        }
+                        // Validate URL format
+                        try {
+                            new URL(args.startUrl);
+                        }
+                        catch (error) {
+                            throw new McpError(ErrorCode.InvalidParams, `Invalid URL format: ${args.startUrl}`);
+                        }
+                        // Validate the steps
+                        for (const step of args.steps) {
+                            if (!step.action) {
+                                throw new McpError(ErrorCode.InvalidParams, 'Each step must have an action');
+                            }
+                            switch (step.action) {
+                                case 'navigate':
+                                    if (!step.url) {
+                                        throw new McpError(ErrorCode.InvalidParams, 'URL is required for navigate');
+                                    }
+                                    try {
+                                        new URL(step.url);
+                                    }
+                                    catch (error) {
+                                        throw new McpError(ErrorCode.InvalidParams, `Invalid URL format in navigate action: ${step.url}`);
+                                    }
+                                    break;
+                                case 'click':
+                                    if (!step.selector) {
+                                        throw new McpError(ErrorCode.InvalidParams, 'Selector is required for click');
+                                    }
+                                    break;
+                                case 'fill':
+                                    if (!step.selector || step.value === undefined) {
+                                        throw new McpError(ErrorCode.InvalidParams, 'Selector and value are required for fill');
+                                    }
+                                    break;
+                                case 'select':
+                                    if (!step.selector || step.value === undefined) {
+                                        throw new McpError(ErrorCode.InvalidParams, 'Selector and value are required for select');
+                                    }
+                                    break;
+                                case 'hover':
+                                    if (!step.selector) {
+                                        throw new McpError(ErrorCode.InvalidParams, 'Selector is required for hover');
+                                    }
+                                    break;
+                                case 'wait':
+                                    if (!step.waitTime) {
+                                        throw new McpError(ErrorCode.InvalidParams, 'Wait time is required for wait action');
+                                    }
+                                    break;
+                                case 'evaluate':
+                                    if (!step.script) {
+                                        throw new McpError(ErrorCode.InvalidParams, 'Script is required for evaluate action');
+                                    }
+                                    break;
+                                case 'screenshot':
+                                    if (!step.description) {
+                                        throw new McpError(ErrorCode.InvalidParams, 'Description is required for screenshot action');
+                                    }
+                                    break;
+                                case 'verifyText':
+                                    if (!step.selector || step.value === undefined) {
+                                        throw new McpError(ErrorCode.InvalidParams, 'Selector and value are required for verifyText');
+                                    }
+                                    break;
+                                case 'verifyElementVisible':
+                                    if (!step.selector) {
+                                        throw new McpError(ErrorCode.InvalidParams, 'Selector is required for verifyElementVisible');
+                                    }
+                                    break;
+                                case 'verifyElementNotVisible':
+                                    if (!step.selector) {
+                                        throw new McpError(ErrorCode.InvalidParams, 'Selector is required for verifyElementNotVisible');
+                                    }
+                                    break;
+                                case 'verifyUrl':
+                                    if (!step.value) {
+                                        throw new McpError(ErrorCode.InvalidParams, 'Expected URL value is required for verifyUrl');
+                                    }
+                                    break;
+                                default:
+                                    throw new Error(`Unsupported action: ${step.action}`);
+                            }
+                        }
+                        // Validate the navigation flow
+                        const result = await this.validateUIWorkflow(args.startUrl, args.taskDescription, args.steps, args.captureScreenshots, args.device);
+                        // Create content array
+                        const content = [
+                            {
+                                type: "text",
+                                text: `# UI Workflow Validation ${result.overallStatus === "Success" ? '✅' : '❌'}\n\nStarting URL: ${args.startUrl}\nTask: ${args.taskDescription}\nOverall Status: ${result.overallStatus}\n`
+                            }
+                        ];
+                        // Add a summary table
+                        let summaryTable = "| Step | Action | Status | Details |\n";
+                        summaryTable += "| ---- | ------ | ------ | ------- |\n";
+                        for (const step of result.steps) {
+                            const status = step.status === "Success" ? '✅' : step.status === "Skipped" ? '⚠️' : '❌';
+                            // Fix: Access original step data from args for summary table details if needed, or simplify details
+                            let details = step.error || step.details || step.description; // Simplified details
+                            // Example of accessing original args if complex details were needed:
+                            // const originalStep = args.steps[step.stepNumber -1] // Assuming stepNumber is 1-based
+                            // details = step.error ? `Error: ${step.error}` : `Action: ${originalStep?.action}, Selector: ${originalStep?.selector}`
+                            summaryTable += `| ${step.stepNumber} | ${step.action} | ${status} | ${details.substring(0, 100)}${details.length > 100 ? '...' : ''} |\n`; // Limit details length
+                        }
+                        content.push({
+                            type: "text",
+                            text: summaryTable
+                        });
+                        // Add results for each step
+                        content.push({
+                            type: "text",
+                            text: "## Detailed Steps"
+                        });
+                        for (const step of result.steps) {
+                            // Step header with status
+                            content.push({
+                                type: "text",
+                                text: `### Step ${step.stepNumber}: ${step.action} ${step.status === "Success" ? '✅' : step.status === "Skipped" ? '⚠️' : '❌'}\n\n` +
+                                    (step.status === "Skipped" ? `Skipped: ${step.description}\n\n` : '') +
+                                    (step.status === "Failure" ? `Failed: ${step.error}\n\n` : '') +
+                                    (step.status === "Success" ? `Success: ${step.description}\n\n` : '')
+                            });
+                            // Add step details
+                            // Fix: Access original step data from args for details if needed
+                            const originalStepForDetails = args.steps[step.stepNumber - 1]; // Assuming stepNumber is 1-based
+                            if (originalStepForDetails?.selector) {
+                                content.push({
+                                    type: "text",
+                                    text: `Selector: \`${originalStepForDetails.selector}\`\n`
+                                });
+                            }
+                            if (originalStepForDetails?.value !== undefined) { // Check explicitly for undefined
+                                content.push({
+                                    type: "text",
+                                    text: `Value: \`${originalStepForDetails.value}\`\n`
+                                });
+                            }
+                            // Add screenshot if available
+                            if (step.screenshotBase64) {
+                                content.push({
+                                    type: "image",
+                                    data: step.screenshotBase64,
+                                    mimeType: "image/png"
+                                });
+                            }
+                            // Add details
+                            if (step.details) {
+                                content.push({
+                                    type: "text",
+                                    text: `Details: ${step.details}\n\n`
+                                });
+                            }
+                        }
+                        // Add summary of console errors if available
+                        if (result.steps.some(s => s.error)) {
+                            const allErrors = result.steps
+                                .filter(s => s.error)
+                                .map(s => `- ${s.error}\n`);
+                            if (allErrors.length > 0) {
+                                content.push({
+                                    type: "text",
+                                    text: `## All Errors (${allErrors.length})\n\n` +
+                                        allErrors.join('\n')
+                                });
+                            }
+                        }
+                        return { content };
+                    }
+                    catch (error) {
+                        throw new McpError(ErrorCode.InternalError, `Failed to validate UI workflow: ${error?.message || 'Unknown error'}`);
+                    }
+                }
+                // <<< END INSERTION: UI Workflow Validator Implementation >>>
                 default:
                     throw new McpError(ErrorCode.MethodNotFound, `Unknown tool ${request.params.name}`);
             }
@@ -3037,6 +3291,199 @@ class AIVisionDebugServer {
     async run() {
         const transport = new StdioServerTransport();
         await this.server.connect(transport);
+    }
+    // <<< START INSERTION: UI Workflow Validator Implementation >>>
+    async validateUIWorkflow(startUrl, taskDescription, steps, captureScreenshots, // Removed default value assignment
+    deviceName) {
+        logToFile(`Starting UI Workflow Validation: ${taskDescription}`);
+        const page = await this.ensureBrowser(1280, 800, deviceName);
+        const stepResults = [];
+        let overallStatus = "Success";
+        try {
+            // Initial navigation
+            logToFile(`Navigating to start URL: ${startUrl}`);
+            await page.goto(startUrl, { waitUntil: 'networkidle' });
+            debugSession.currentUrl = page.url();
+            // Process each step
+            for (const [index, step] of steps.entries()) {
+                const stepNumber = index + 1;
+                let stepStatus = "Success";
+                let stepError;
+                let stepDetails;
+                let stepScreenshotPath;
+                let stepScreenshotBase64;
+                logToFile(`Executing Step ${stepNumber}: ${step.description} (${step.action})`);
+                try {
+                    // Perform action or verification
+                    switch (step.action) {
+                        case 'navigate':
+                            if (!step.url)
+                                throw new Error('URL is required for navigate');
+                            await page.goto(step.url, { waitUntil: 'networkidle' });
+                            debugSession.currentUrl = page.url();
+                            stepDetails = `Navigated to ${page.url()}`;
+                            break;
+                        case 'click':
+                            if (!step.selector)
+                                throw new Error('Selector is required for click');
+                            await page.click(step.selector);
+                            stepDetails = `Clicked: ${step.selector}`;
+                            break;
+                        case 'fill':
+                            if (!step.selector || step.value === undefined)
+                                throw new Error('Selector and value required for fill');
+                            await page.fill(step.selector, step.value);
+                            stepDetails = `Filled ${step.selector}`;
+                            break;
+                        case 'select':
+                            if (!step.selector || step.value === undefined)
+                                throw new Error('Selector and value required for select');
+                            await page.selectOption(step.selector, step.value);
+                            stepDetails = `Selected in ${step.selector}`;
+                            break;
+                        case 'hover':
+                            if (!step.selector)
+                                throw new Error('Selector is required for hover');
+                            await page.hover(step.selector);
+                            stepDetails = `Hovered ${step.selector}`;
+                            break;
+                        case 'wait':
+                            await page.waitForTimeout(step.waitTime || 1000);
+                            stepDetails = `Waited ${step.waitTime || 1000}ms`;
+                            break;
+                        case 'evaluate':
+                            if (!step.script)
+                                throw new Error('Script is required for evaluate');
+                            const result = await page.evaluate(step.script);
+                            stepDetails = `Evaluated script. Result: ${JSON.stringify(result)}`;
+                            break;
+                        case 'screenshot':
+                            const name = step.description.replace(/[^a-zA-Z0-9_-]/g, '_') || `step_${stepNumber}`;
+                            const { base64Data, path } = await this._takePlaywrightScreenshot(page, name, false, step.selector);
+                            stepScreenshotBase64 = base64Data;
+                            stepScreenshotPath = path; // Store path for potential later use if needed
+                            stepDetails = `Took screenshot: ${name}`;
+                            break;
+                        case 'verifyText':
+                            if (!step.selector || step.value === undefined)
+                                throw new Error('Selector and value required for verifyText');
+                            const elementText = await page.textContent(step.selector);
+                            if (elementText === null || !elementText.includes(step.value)) {
+                                throw new Error(`Verification failed: Expected text "${step.value}" not found in ${step.selector}. Actual: "${elementText}"`);
+                            }
+                            stepDetails = `Verified text "${step.value}" in ${step.selector}`;
+                            break;
+                        case 'verifyElementVisible':
+                            if (!step.selector)
+                                throw new Error('Selector is required for verifyElementVisible');
+                            await page.waitForSelector(step.selector, { state: 'visible', timeout: 5000 });
+                            stepDetails = `Verified element visible: ${step.selector}`;
+                            break;
+                        case 'verifyElementNotVisible':
+                            if (!step.selector)
+                                throw new Error('Selector is required for verifyElementNotVisible');
+                            await page.waitForSelector(step.selector, { state: 'hidden', timeout: 5000 });
+                            stepDetails = `Verified element not visible: ${step.selector}`;
+                            break;
+                        case 'verifyUrl':
+                            if (!step.value)
+                                throw new Error('Expected URL value is required for verifyUrl');
+                            const currentUrl = page.url();
+                            if (!currentUrl.includes(step.value)) {
+                                throw new Error(`URL verification failed: Expected URL to include "${step.value}", but was "${currentUrl}"`);
+                            }
+                            stepDetails = `Verified URL includes "${step.value}"`;
+                            break;
+                        default:
+                            throw new Error(`Unsupported action: ${step.action}`);
+                    }
+                    await page.waitForTimeout(500); // Small delay after action
+                }
+                catch (error) {
+                    stepStatus = "Failure";
+                    stepError = error.message;
+                    logToFile(`Step ${stepNumber} failed: ${stepError}`);
+                    if (!step.isOptional) {
+                        overallStatus = "Failure";
+                    }
+                }
+                // Capture screenshot based on status and configuration
+                if (captureScreenshots === "all" || (captureScreenshots === "failure" && stepStatus === "Failure")) {
+                    if (!stepScreenshotBase64) { // Avoid taking screenshot twice if action was 'screenshot'
+                        try {
+                            const name = `step_${stepNumber}_${stepStatus}`.toLowerCase();
+                            const { base64Data, path } = await this._takePlaywrightScreenshot(page, name, false);
+                            stepScreenshotBase64 = base64Data;
+                            stepScreenshotPath = path;
+                        }
+                        catch (screenshotError) {
+                            logToFile(`Failed to take screenshot for step ${stepNumber}: ${screenshotError.message}`);
+                            // Don't fail the step itself for a screenshot error, just log it
+                        }
+                    }
+                }
+                stepResults.push({
+                    stepNumber,
+                    description: step.description,
+                    action: step.action,
+                    status: stepStatus,
+                    error: stepError,
+                    screenshotPath: stepScreenshotPath, // Keep path for internal use if needed
+                    screenshotBase64: stepScreenshotBase64,
+                    details: stepDetails,
+                });
+                // Stop processing if a non-optional step failed
+                if (overallStatus === "Failure" && !step.isOptional) {
+                    logToFile(`Workflow stopped due to failure at non-optional Step ${stepNumber}`);
+                    break;
+                }
+            }
+        }
+        catch (initialError) {
+            logToFile(`Workflow failed during initial setup or navigation: ${initialError.message}`);
+            overallStatus = "Failure";
+            // Add a step indicating the initial failure
+            stepResults.push({
+                stepNumber: 0,
+                description: "Workflow Initialization",
+                action: "setup",
+                status: "Failure",
+                error: initialError.message,
+            });
+        }
+        logToFile(`UI Workflow Validation finished with status: ${overallStatus}`);
+        return {
+            taskDescription,
+            overallStatus,
+            steps: stepResults,
+        };
+    }
+    // Helper function for taking Playwright screenshots and managing resources
+    async _takePlaywrightScreenshot(page, name, fullPage = false, selector) {
+        const screenshotName = name.replace(/[^a-zA-Z0-9_-]/g, '_'); // Sanitize name
+        const fileUuid = randomUUID();
+        const screenshotPath = path.join(TEMP_DIR, `${screenshotName}_${fileUuid}.png`);
+        let screenshotBuffer;
+        if (selector) {
+            const element = await page.$(selector);
+            if (!element) {
+                throw new Error(`Element not found for screenshot: ${selector}`);
+            }
+            screenshotBuffer = await element.screenshot({ path: screenshotPath });
+        }
+        else {
+            screenshotBuffer = await page.screenshot({
+                path: screenshotPath,
+                fullPage: fullPage
+            });
+        }
+        const base64Data = screenshotBuffer ? screenshotBuffer.toString('base64') : (await fsPromises.readFile(screenshotPath)).toString('base64');
+        const resourceUri = `screenshot://${screenshotName}_${fileUuid}`;
+        screenshots.set(resourceUri.replace('screenshot://', ''), base64Data); // Use URI as key
+        logToFile(`Screenshot '${screenshotName}' saved to ${screenshotPath}. Resource URI: ${resourceUri}`);
+        // Clean up the temporary file
+        await fsPromises.unlink(screenshotPath).catch(err => logToFile(`Failed to delete temp screenshot file ${screenshotPath}: ${err}`));
+        return { path: screenshotPath, base64Data, resourceUri };
     }
 }
 // Start the server
