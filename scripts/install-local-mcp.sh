@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 set -e
 
-# MCP AI Vision Debug UI Automation
+# VUDA: Visual UI Debug Agent
 # Local MCP installation script
 
-echo "🚀 Installing MCP AI Vision Debug UI Automation to local MCP environment"
+echo "🚀 Installing VUDA: Visual UI Debug Agent to local MCP environment"
 echo "=================================================================="
 
 # Determine target directory
@@ -50,7 +50,7 @@ if [ -d "$DOCKMASTER_DIR" ]; then
   mkdir -p "$MCP_SERVERS_DIR"
   
   # Create target directory for our server
-  SERVER_DIR="$MCP_SERVERS_DIR/mcp-ai-vision-debug-ui-automation"
+  SERVER_DIR="$MCP_SERVERS_DIR/visual-ui-debug-agent-mcp"
   mkdir -p "$SERVER_DIR"
   
   # Copy files
@@ -70,14 +70,14 @@ if [ -d "$CONFIG_DIR" ]; then
   
   # Generate a config entry
   echo "📝 Creating configuration entry..."
-  CONFIG_FILE="$CONFIG_DIR/mcp-ai-vision-debug-ui-automation.json"
+  CONFIG_FILE="$CONFIG_DIR/visual-ui-debug-agent-mcp.json"
   
   # Create JSON configuration
   cat > "$CONFIG_FILE" << EOL
 {
-  "name": "mcp-ai-vision-debug-ui-automation",
-  "displayName": "MCP AI Vision Debug UI Automation",
-  "description": "MCP server for visual analysis and automated UI testing",
+  "name": "visual-ui-debug-agent-mcp",
+  "displayName": "VUDA: Visual UI Debug Agent",
+  "description": "Autonomous visual analysis and automated UI testing agent",
   "version": "$(node -p "require('./package.json').version")",
   "type": "server",
   "startCommand": "node build/index.js",
@@ -85,7 +85,7 @@ if [ -d "$CONFIG_DIR" ]; then
     "PORT": "8080",
     "DEBUG": "false"
   },
-  "path": "$MCP_DIR/mcp-server-ai-vision"
+  "path": "$MCP_DIR/visual-ui-debug-agent-mcp"
 }
 EOL
   
@@ -94,8 +94,9 @@ fi
 
 echo "🎉 Installation completed successfully!"
 echo ""
-echo "You can now use MCP AI Vision Debug UI Automation through:"
+echo "You can now use VUDA: Visual UI Debug Agent through:"
 echo "- MCP Dockmaster (if available)"
 echo "- Direct configuration in your MCP client"
 echo ""
 echo "To start the server directly, run: npm start"
+echo "Or use the binary: vuda"

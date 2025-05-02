@@ -1,8 +1,8 @@
 #!/bin/bash
 
-# Script to rebuild the mcp-server-ai-vision project
+# Script to rebuild the visual-ui-debug-agent (VUDA) project
 
-echo "🔧 Rebuilding mcp-server-ai-vision..."
+echo "🔧 Rebuilding visual-ui-debug-agent..."
 
 # Install dependencies
 echo "📦 Installing dependencies..."
@@ -21,6 +21,7 @@ mkdir -p "$(dirname "$0")/build"
 
 # Setup script
 echo "✅ Setup complete!"
-echo "To run the server, use: node build/index.js"
+echo "To run VUDA, use: node build/index.js"
+echo "Or use the binary: vuda"
 
 echo "🚀 Rebuild process completed!" 
