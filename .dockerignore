@@ -1,0 +1,36 @@
+# Exclude unnecessary files from Docker build context
+node_modules
+npm-debug.log
+Dockerfile
+.dockerignore
+.git
+.github
+.gitignore
+.vscode
+.idea
+.env
+.npmrc
+
+# Exclude build artifacts
+build
+dist
+*.tgz
+
+# Exclude test files
+test
+tests
+__tests__
+coverage
+
+# Exclude documentation
+docs
+
+# Exclude temporary files
+temp
+tmp
+*.tmp
+
+# Keep only necessary configuration
+!tsconfig.json
+!package.json
+!package-lock.json

@@ -1,14 +1,16 @@
-# AI Vision Debug MCP Server
+# MCP AI Vision Debug UI Automation
 
-[![MCP on Glama](https://modelcontextprotocol.ai/badge/samihalawa/mcp-server-ai-vision)](https://gateway.glama.ai/servers/samihalawa/mcp-server-ai-vision)
+[![MCP Server](https://img.shields.io/badge/MCP-AI%20Vision%20Debug-blue)](https://github.com/samihalawa/mcp-ai-vision-debug-ui-automation) [![GLAMA Compatible](https://img.shields.io/badge/GLAMA-Compatible-green)](https://github.com/samihalawa/mcp-ai-vision-debug-ui-automation) [![Smithery Compatible](https://img.shields.io/badge/Smithery-Compatible-orange)](https://smithery.ai/docs/config)
 
 A ModelContextProtocol (MCP) server that gives AI models the ability to analyze, debug, and interact with web interfaces through Playwright. This server enables any AI (even those without vision capabilities) to visually inspect web pages, test UI functionality, and validate user workflows.
 
+![UI Automation Screenshot](publicresources/screenshot1.png)
+
 ## How to Use This MCP Server
 
-This MCP server is designed to be integrated with AI systems through the Model Context Protocol. There are three main ways to use it:
+This MCP server is designed to be integrated with AI systems through the Model Context Protocol. There are several ways to use it:
 
-1. **With Glama**: Install via Glama Gateway for seamless integration with Glama models
+1. **With MCP Gateways**: Install via your preferred MCP gateway for seamless integration
 2. **With custom MCP clients**: Connect your own AI clients using the MCP protocol
 3. **Standalone for testing**: Run locally during development
 
@@ -22,13 +24,67 @@ Once connected, your AI model can call the available tools to interact with web 
 
 ## Installation
 
-### Using Glama Gateway
+### Using an MCP Gateway
 
-The recommended way to install this MCP server is through the [Glama Gateway](https://gateway.glama.ai/servers/samihalawa/mcp-server-ai-vision):
+The recommended way to install this MCP server is through any MCP-compatible gateway:
 
-1. Visit the server page on Glama Gateway
-2. Click "Install Server"
-3. Follow the guided installation steps
+1. Visit the server page on your preferred MCP gateway
+2. Follow the standard MCP server installation process
+3. Ensure your model has access to the newly installed server
+
+### Quick Installation Script
+
+Use our one-line installation script:
+
+```bash
+curl -s https://raw.githubusercontent.com/samihalawa/mcp-ai-vision-debug-ui-automation/main/scripts/install-global.sh | bash
+```
+
+### NPM Installation
+
+For global installation via npm:
+
+```bash
+# Install globally
+npm install -g mcp-ai-vision-debug-ui-automation
+
+# Start the server
+mcp-ai-vision-debug-ui-automation
+```
+
+### Docker Hub Installation
+
+For containerized deployment:
+
+```bash
+# Pull the image from Docker Hub
+docker pull samihalawa/mcp-ai-vision-debug-ui-automation:latest
+
+# Run the container
+docker run -p 8080:8080 samihalawa/mcp-ai-vision-debug-ui-automation:latest
+```
+
+### Smithery Integration
+
+This package is fully Smithery-compatible using the included configuration file:
+
+1. **Clone and Build**:
+   ```bash
+   git clone https://github.com/samihalawa/mcp-ai-vision-debug-ui-automation.git
+   cd mcp-ai-vision-debug-ui-automation
+   npm install
+   npm run build
+   ```
+
+2. **Run with Smithery Configuration**:
+   ```bash
+   npm run smithery
+   ```
+
+3. **Connect to Claude**:
+   Configure Claude or other Smithery clients to use the MCP URL: `http://localhost:8080/mcp`
+
+For full installation and usage instructions, see the [Smithery Integration Guide](./SMITHERY-GUIDE.md).
 
 ### Manual Installation 
 
@@ -36,8 +92,8 @@ If you prefer to install manually:
 
 ```bash
 # Clone the repository
-git clone https://github.com/samihalawa/mcp-server-ai-vision.git
-cd mcp-server-ai-vision
+git clone https://github.com/samihalawa/mcp-ai-vision-debug-ui-automation.git
+cd mcp-ai-vision-debug-ui-automation
 
 # Install dependencies
 npm install
@@ -49,16 +105,27 @@ npm run build
 npm start
 ```
 
-### Docker Deployment
+### Cross-Platform Support
 
-For containerized deployment:
+MCP AI Vision Debug UI Automation supports the following platforms:
+
+- **Operating Systems**: macOS, Linux, Windows
+- **CPU Architectures**: x64, arm64 (Apple Silicon)
+
+Platform-specific packages are also available:
 
 ```bash
-# Build the Docker image
-docker build -t mcp-ai-vision .
+# For macOS (Intel)
+npm install -g mcp-ai-vision-debug-ui-automation-darwin-x64
 
-# Run the container
-docker run -p 8080:8080 mcp-ai-vision
+# For macOS (Apple Silicon)
+npm install -g mcp-ai-vision-debug-ui-automation-darwin-arm64
+
+# For Linux (x64)
+npm install -g mcp-ai-vision-debug-ui-automation-linux-x64
+
+# For Windows (x64)
+npm install -g mcp-ai-vision-debug-ui-automation-win32-x64
 ```
 
 ## Key Features
@@ -306,6 +373,52 @@ The server also provides these specialized tools:
 - `batch_screenshot_urls`: Take screenshots of multiple URLs
 - `playwright_navigate`, `playwright_click`, etc.: Direct Playwright actions
 
+### Visual Element Comparison
+
+![Visual Comparison Screenshot](publicresources/screenshot2.png)
+
+The visual comparison tool allows you to detect differences between UI states, making it perfect for regression testing and verifying visual changes.
+
+## Integration with GLAMA
+
+AI Vision Debug UI Automation fully integrates with the GLAMA ecosystem, providing:
+
+- **One-click installation** through the GLAMA marketplace
+- **Pre-configured templates** for common UI testing scenarios
+- **Shareable configurations** across your team
+- **Standardized interfaces** for use with other GLAMA-compatible tools
+
+```json
+// Example GLAMA integration configuration
+{
+  "name": "mcp-ai-vision-debug-ui-automation",
+  "version": "1.0.0",
+  "settings": {
+    "port": 8080,
+    "debugMode": true,
+    "headless": true
+  }
+}
+```
+
+## Integration with Smithery
+
+Smithery compatibility enables seamless integration into CI/CD workflows:
+
+```yaml
+# Example Smithery configuration
+startCommand:
+  type: stdio
+  configSchema:
+    type: object
+    required:
+      - port
+    properties:
+      port:
+        type: number
+        description: Port number for the MCP server
+```
+
 ## Integration with Non-Vision Models
 
 This server can be used with any LLM, not just those with vision capabilities. The screenshot annotations and analysis are processed into structured text descriptions that can be consumed by text-only models. This allows standard LLMs to:
@@ -315,11 +428,40 @@ This server can be used with any LLM, not just those with vision capabilities. T
 3. Execute precise UI testing workflows
 4. Analyze page contents and functionality
 
+## Example Workflow
+
+The following diagram illustrates a typical workflow:
+
+```
+┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
+│                 │    │                 │    │                 │
+│  AI Assistant   │◄───┤  MCP Gateway    │◄───┤  AI Vision      │
+│                 │    │                 │    │  Debug UI Auto  │
+└────────┬────────┘    └─────────────────┘    └────────┬────────┘
+         │                                             │
+         │                                             │
+         │                                             ▼
+┌────────▼────────┐                          ┌─────────────────┐
+│                 │                          │                 │
+│  User Interface │                          │  Web Browser    │
+│                 │                          │                 │
+└─────────────────┘                          └─────────────────┘
+```
+
 ## Troubleshooting
 
 - **Connection Issues**: Ensure the MCP server is running and accessible
 - **Playwright Errors**: If you encounter Playwright initialization errors, try reinstalling browsers with `npx playwright install --with-deps chromium`
 - **Memory Issues**: For large workflows, monitor memory usage and consider restarting the server if performance degrades
+
+### Common Errors
+
+| Error | Solution |
+|-------|----------|
+| Browser launch failure | Check Playwright installation with `npx playwright install --with-deps` |
+| Connection timeout | Verify network connectivity and firewall settings |
+| Screenshot error | Ensure target URL is accessible and valid |
+| Element not found | Verify selector syntax and wait for page load |
 
 ## Contributing
 

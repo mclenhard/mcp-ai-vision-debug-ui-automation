@@ -1,0 +1,50 @@
+# Source files (compiled to build/)
+src/
+
+# Development files
+.vscode/
+.idea/
+*.log
+.git/
+.gitignore
+tsconfig.json
+.prettierrc
+.eslintrc
+*.tgz
+
+# Testing and examples not needed in package
+test/
+tests/
+examples/
+__tests__/
+
+# Documentation source files
+docs/
+
+# Scripts not needed in package
+scripts/
+
+# Temporary files
+temp/
+tmp/
+*.tmp
+
+# Config files not needed for installation
+.editorconfig
+.npmrc
+.nvmrc
+.travis.yml
+.github/
+.circleci/
+
+# Lock files (users will generate their own)
+yarn.lock
+pnpm-lock.yaml
+# But keep package-lock.json
+
+# Docker files (not needed for npm package)
+Dockerfile
+.dockerignore
+
+# Configuration files for other platforms
+mcp-configs/

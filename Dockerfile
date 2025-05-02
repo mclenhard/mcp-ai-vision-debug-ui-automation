@@ -1,5 +1,9 @@
 FROM node:18-slim
 
+LABEL name="MCP AI Vision Debug UI Automation"
+LABEL description="MCP server for visual analysis and automated UI testing"
+LABEL maintainer="samihalawa"
+
 # Install dependencies for Playwright
 RUN apt-get update && apt-get install -y \
     libgtk-3-0 \
