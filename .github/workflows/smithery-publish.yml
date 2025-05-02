@@ -1,0 +1,99 @@
+name: Publish to Smithery
+
+on:
+  release:
+    types: [created]
+  workflow_dispatch:
+
+jobs:
+  publish-smithery:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      
+      - name: Use Node.js 20.x
+        uses: actions/setup-node@v3
+        with:
+          node-version: 20.x
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Build
+        run: npm run build
+      
+      - name: Create Smithery Package
+        run: |
+          # Create a temporary directory for the package
+          TEMP_DIR=$(mktemp -d)
+          PACKAGE_DIR="$TEMP_DIR/mcp-ai-vision-debug-ui-automation"
+          mkdir -p "$PACKAGE_DIR"
+          
+          # Copy necessary files to the package directory
+          cp -R build "$PACKAGE_DIR/"
+          cp -R publicresources "$PACKAGE_DIR/"
+          cp smithery.yaml "$PACKAGE_DIR/"
+          cp package.json README.md LICENSE "$PACKAGE_DIR/"
+          
+          # Create scripts directory and copy required files
+          mkdir -p "$PACKAGE_DIR/scripts"
+          cp scripts/run-with-smithery.js "$PACKAGE_DIR/scripts/"
+          
+          # Create Smithery metadata
+          cat > "$PACKAGE_DIR/smithery.json" << EOL
+          {
+            "name": "mcp-ai-vision-debug-ui-automation",
+            "version": "$(node -p "require('./package.json').version")",
+            "description": "MCP AI Vision Debug UI Automation - MCP server for visual analysis and automated UI testing",
+            "smithery": {
+              "displayName": "AI Vision Debug UI Automation",
+              "description": "Visual analysis and UI testing for AI models",
+              "icon": "publicresources/icon.svg",
+              "startCommand": {
+                "type": "stdio",
+                "command": "node",
+                "args": ["scripts/run-with-smithery.js"]
+              }
+            }
+          }
+          EOL
+          
+          # Create tarball
+          cd "$TEMP_DIR"
+          tar -czf mcp-ai-vision-debug-ui-automation.tgz mcp-ai-vision-debug-ui-automation
+          
+          # Move tarball to workspace
+          cd "$GITHUB_WORKSPACE"
+          mkdir -p artifacts
+          mv "$TEMP_DIR/mcp-ai-vision-debug-ui-automation.tgz" artifacts/
+          
+          # Clean up
+          rm -rf "$TEMP_DIR"
+      
+      - name: Install Smithery CLI
+        run: npm install -g @smithery/cli
+      
+      - name: Publish to Smithery
+        run: |
+          # Try direct installation first
+          npx @smithery/cli install artifacts/mcp-ai-vision-debug-ui-automation.tgz --id mcp-ai-vision-debug-ui-automation --client claude --key ${{ secrets.SMITHERY_API_KEY }}
+          
+          # If direct installation fails, try API method
+          if [ $? -ne 0 ]; then
+            echo "Direct installation failed, trying API method..."
+            curl -X POST 'https://api.smithery.ai/v1/teams/default/servers' \
+              -H "Authorization: Bearer ${{ secrets.SMITHERY_API_KEY }}" \
+              -H 'Content-Type: multipart/form-data' \
+              -F "package=@artifacts/mcp-ai-vision-debug-ui-automation.tgz" \
+              -F 'id=mcp-ai-vision-debug-ui-automation' \
+              -F 'description=MCP AI Vision Debug UI Automation'
+          fi
+      
+      - name: Upload Smithery Package Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: smithery-package
+          path: artifacts/mcp-ai-vision-debug-ui-automation.tgz
+          retention-days: 7

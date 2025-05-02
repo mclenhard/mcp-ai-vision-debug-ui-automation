@@ -463,6 +463,40 @@ The following diagram illustrates a typical workflow:
 | Screenshot error | Ensure target URL is accessible and valid |
 | Element not found | Verify selector syntax and wait for page load |
 
+## CI/CD with GitHub Actions
+
+This project uses GitHub Actions for continuous integration and deployment. The following workflows are available:
+
+### Build and Test
+
+Automatically runs on every push and pull request to ensure code quality:
+- Builds the project with TypeScript
+- Runs all tests
+- Works on multiple Node.js versions (18.x, 20.x)
+
+### NPM Publishing
+
+Automatically publishes the package to npm when a new release is created:
+- Publishes the main package
+- Creates and publishes platform-specific variants
+- Can be manually triggered with specific version
+
+### Docker Image Publishing
+
+Creates and pushes Docker images:
+- Builds multi-platform images (amd64, arm64)
+- Automatically tags with version and latest
+- Pushes to Docker Hub
+
+### Smithery Publishing
+
+Publishes the package to Smithery:
+- Creates a properly formatted Smithery package
+- Uploads via Smithery API
+- Makes the server available for Smithery users
+
+To use these workflows manually, go to the Actions tab in the GitHub repository.
+
 ## Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.

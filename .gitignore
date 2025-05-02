@@ -47,6 +47,10 @@ jspm_packages/
 .env.production.local
 .env.local
 
+# NPM token files
+.npmrc.publish
+.npmrc
+
 # Temp directory contents
 temp/*
 !temp/.gitkeep
