@@ -2,35 +2,35 @@
 
 [![MCP Server](https://img.shields.io/badge/MCP-AI%20Vision%20Debug-blue)](https://github.com/samihalawa/mcp-ai-vision-debug-ui-automation) [![GLAMA Compatible](https://img.shields.io/badge/GLAMA-Compatible-green)](https://github.com/samihalawa/mcp-ai-vision-debug-ui-automation) [![Smithery Compatible](https://img.shields.io/badge/Smithery-Compatible-orange)](https://smithery.ai/docs/config)
 
-A ModelContextProtocol (MCP) server that gives AI models the ability to analyze, debug, and interact with web interfaces through Playwright. This server enables any AI (even those without vision capabilities) to visually inspect web pages, test UI functionality, and validate user workflows.
+An autonomous debugging MCP server that empowers AI models to analyze, debug, and interact with web interfaces through Playwright. This server enables any AI model (even those without built-in vision capabilities) to visually inspect web pages, find UI bugs, test user workflows, and validate application performance - all without human intervention.
 
 ![UI Automation Screenshot](publicresources/screenshot1.png)
 
-## How to Use This MCP Server
+## Autonomous UI Debugging Agent
 
-This MCP server is designed to be integrated with AI systems through the Model Context Protocol. There are several ways to use it:
+This MCP server functions as an AI-powered autonomous debugging agent that can:
 
-1. **With MCP Gateways**: Install via your preferred MCP gateway for seamless integration
-2. **With custom MCP clients**: Connect your own AI clients using the MCP protocol
-3. **Standalone for testing**: Run locally during development
+- **Perform comprehensive visual analysis** of web applications
+- **Detect UI issues** by inspecting visual elements and their properties
+- **Automatically test common user workflows** without manual test script creation
+- **Validate API endpoints** and verify backend responses
+- **Track visual changes** between application versions
+- **Monitor console logs** for errors and warnings
+- **Analyze performance metrics** to identify bottlenecks
+- **Generate detailed reports** with screenshots and recommendations
 
-Once connected, your AI model can call the available tools to interact with web interfaces, helping it to:
+The server is designed to work intelligently, reusing browser sessions, avoiding unnecessary file creation, and focusing on the most important aspects of your application.
 
-- **Capture visual information** from web pages and interpret the contents
-- **Map and interact with UI elements** like buttons, forms, and navigational elements
-- **Validate user workflows** by simulating actual user interactions
-- **Debug web applications** by tracking console logs, performance metrics, and network activity
-- **Test API endpoints** to verify backend functionality
+## Installation Options
 
-## Installation
+### Using an MCP Gateway (Recommended)
 
-### Using an MCP Gateway
+The easiest way to install this MCP server is through any MCP-compatible gateway:
 
-The recommended way to install this MCP server is through any MCP-compatible gateway:
-
-1. Visit the server page on your preferred MCP gateway
-2. Follow the standard MCP server installation process
-3. Ensure your model has access to the newly installed server
+```bash
+# Example with Claude gateway
+claude-gateway install mcp-ai-vision-debug-ui-automation
+```
 
 ### Quick Installation Script
 
@@ -68,439 +68,317 @@ docker run -p 8080:8080 samihalawa/mcp-ai-vision-debug-ui-automation:latest
 
 This package is fully Smithery-compatible using the included configuration file:
 
-1. **Clone and Build**:
-   ```bash
-   git clone https://github.com/samihalawa/mcp-ai-vision-debug-ui-automation.git
-   cd mcp-ai-vision-debug-ui-automation
-   npm install
-   npm run build
-   ```
+```bash
+# Install with Smithery
+smithery install mcp-ai-vision-debug-ui-automation
 
-2. **Run with Smithery Configuration**:
-   ```bash
-   npm run smithery
-   ```
-
-3. **Connect to Claude**:
-   Configure Claude or other Smithery clients to use the MCP URL: `http://localhost:8080/mcp`
+# Or run with your API key
+npm run smithery:key YOUR_SMITHERY_API_KEY
+```
 
 For full installation and usage instructions, see the [Smithery Integration Guide](./SMITHERY-GUIDE.md).
 
-### Manual Installation 
-
-If you prefer to install manually:
-
-```bash
-# Clone the repository
-git clone https://github.com/samihalawa/mcp-ai-vision-debug-ui-automation.git
-cd mcp-ai-vision-debug-ui-automation
-
-# Install dependencies
-npm install
-
-# Build the project
-npm run build
-
-# Start the server
-npm start
-```
-
 ### Cross-Platform Support
 
-MCP AI Vision Debug UI Automation supports the following platforms:
-
-- **Operating Systems**: macOS, Linux, Windows
-- **CPU Architectures**: x64, arm64 (Apple Silicon)
-
-Platform-specific packages are also available:
+Platform-specific packages are available for all major platforms:
 
 ```bash
-# For macOS (Intel)
+# For macOS (Intel or Apple Silicon)
 npm install -g mcp-ai-vision-debug-ui-automation-darwin-x64
-
-# For macOS (Apple Silicon)
 npm install -g mcp-ai-vision-debug-ui-automation-darwin-arm64
 
-# For Linux (x64)
+# For Linux
 npm install -g mcp-ai-vision-debug-ui-automation-linux-x64
+npm install -g mcp-ai-vision-debug-ui-automation-linux-arm64
 
-# For Windows (x64)
+# For Windows
 npm install -g mcp-ai-vision-debug-ui-automation-win32-x64
 ```
 
-## Key Features
+## Complete Tool Reference
 
-- **Visual Analysis**: Capture and analyze screenshots of web pages
-- **Interactive Element Mapping**: Automatically identify and map clickable elements, forms, and controls
-- **Workflow Testing**: Define and validate complete user journeys through web interfaces
-- **API Testing**: Test REST endpoints and validate responses
-- **Performance Analysis**: Measure and track page load performance metrics
-- **Visual Comparison**: Compare before/after states of web interfaces
+### Primary Visual Analysis Tools
 
-## Detailed Tool Reference
+#### 1. `enhanced_page_analyzer` 🔍
 
-### 1. `screenshot_url`
+Provides comprehensive analysis of web pages with interactive elements mapping, performance metrics, and visual inspection.
 
-Captures screenshots of any URL.
-
-**Parameters:**
-- `url` (string): The URL to capture a screenshot of
-- `fullPage` (boolean, optional): Whether to capture the full page or just viewport
-- `selector` (string, optional): CSS selector to screenshot only that element
-- `waitForSelector` (string, optional): CSS selector to wait for before taking screenshot
-- `waitTime` (number, optional): Time to wait in milliseconds before taking screenshot
-- `device` (string, optional): Device to emulate (e.g., "iPhone 13", "Pixel 5")
-
-**Example:**
-```javascript
-const result = await mcp.callTool("screenshot_url", {
-  url: "https://example.com/login",
-  fullPage: true,
-  waitForSelector: "form.login",
-  waitTime: 2000
-});
-```
-
-### 2. `enhanced_page_analyzer`
-
-Performs comprehensive analysis of a web page.
-
-**Parameters:**
-- `url` (string): URL to analyze
-- `includeConsole` (boolean, optional): Whether to include console logs
-- `mapElements` (boolean, optional): Whether to map interactive elements
-- `fullPage` (boolean, optional): Whether to analyze full page
-- `waitForSelector` (string, optional): CSS selector to wait for before analysis
-- `waitTime` (number, optional): Time to wait in milliseconds
-- `device` (string, optional): Device to emulate
-
-**Example:**
 ```javascript
 const analysis = await mcp.callTool("enhanced_page_analyzer", {
-  url: "https://example.com",
+  url: "https://example.com/dashboard",
   includeConsole: true,
   mapElements: true,
-  fullPage: true,
-  waitTime: 3000
+  fullPage: true
 });
-
-// You can then access:
-// analysis.screenshot - Base64 screenshot data
-// analysis.interactiveElements - Mapped UI elements
-// analysis.consoleMessages - Console output
-// analysis.performance - Performance metrics
 ```
 
-### 3. `ui_workflow_validator`
+#### 2. `ui_workflow_validator` 🔄
 
-Executes a sequence of UI interactions to simulate a user workflow.
+Automatically tests full user journeys by executing and validating a sequence of UI interactions.
 
-**Parameters:**
-- `startUrl` (string): Initial URL for the workflow
-- `taskDescription` (string): Description of the user task being simulated
-- `steps`: Array of step objects:
-  - `description` (string): Description of the user action
-  - `action` (string): Action type (navigate, click, fill, select, etc.)
-  - `selector` (string, optional): CSS selector for interaction
-  - `value` (string, optional): Value for fill/select actions
-  - `url` (string, optional): URL for navigate action
-  - `script` (string, optional): JavaScript for evaluate action
-  - `waitTime` (number, optional): Time to wait in milliseconds
-  - `isOptional` (boolean, optional): Whether failure should stop workflow
-- `captureScreenshots` (string): When to capture screenshots ("all", "failure", "none")
-- `device` (string, optional): Device to emulate
-
-**Example:**
 ```javascript
-const workflow = await mcp.callTool("ui_workflow_validator", {
+const result = await mcp.callTool("ui_workflow_validator", {
   startUrl: "https://example.com/login",
-  taskDescription: "User login and profile update flow",
+  taskDescription: "User login flow",
   steps: [
-    {
-      description: "Enter username",
-      action: "fill",
-      selector: "#username",
-      value: "testuser"
-    },
-    {
-      description: "Enter password",
-      action: "fill",
-      selector: "#password",
-      value: "password123"
-    },
-    {
-      description: "Click login button",
-      action: "click",
-      selector: "#login-btn"
-    },
-    {
-      description: "Verify dashboard is loaded",
-      action: "verifyElementVisible",
-      selector: ".dashboard-welcome"
-    },
-    {
-      description: "Navigate to profile page",
-      action: "click",
-      selector: "a[href='/profile']"
-    },
-    {
-      description: "Update bio information",
-      action: "fill",
-      selector: "textarea#bio",
-      value: "This is my updated profile bio."
-    },
-    {
-      description: "Save profile changes",
-      action: "click",
-      selector: "button[type='submit']"
-    },
-    {
-      description: "Verify success message appears",
-      action: "verifyText",
-      selector: ".alert-success",
-      value: "Profile updated successfully"
-    }
+    { description: "Enter username", action: "fill", selector: "#username", value: "test" },
+    { description: "Enter password", action: "fill", selector: "#password", value: "pass" },
+    { description: "Click login", action: "click", selector: "button[type='submit']" },
+    { description: "Verify dashboard loads", action: "verifyElementVisible", selector: ".dashboard" }
   ],
-  captureScreenshots: "failure"
+  captureScreenshots: "all"
 });
 ```
 
-### 4. `api_endpoint_tester`
+#### 3. `visual_comparison` 👁️
 
-Tests multiple API endpoints and verifies responses.
+Compares two web pages or UI states to identify visual differences.
 
-**Parameters:**
-- `url` (string): Base URL of the API
-- `endpoints`: Array of endpoint objects:
-  - `path` (string): Endpoint path
-  - `method` (string): HTTP method
-  - `data` (object, optional): Request body data
-  - `headers` (object, optional): Request headers
-- `authToken` (string, optional): Auth token to include in all requests
+```javascript
+const diff = await mcp.callTool("visual_comparison", {
+  url1: "https://example.com/before",
+  url2: "https://example.com/after",
+  threshold: 0.05
+});
+```
 
-**Example:**
+#### 4. `screenshot_url` 📸
+
+Captures high-quality screenshots of any URL with options for full page or specific elements.
+
+```javascript
+const screenshot = await mcp.callTool("screenshot_url", {
+  url: "https://example.com/profile",
+  fullPage: true,
+  device: "iPhone 13"
+});
+```
+
+#### 5. `batch_screenshot_urls` 📷
+
+Takes screenshots of multiple URLs in a single operation for efficient comparison.
+
+```javascript
+const screenshots = await mcp.callTool("batch_screenshot_urls", {
+  urls: ["https://example.com/page1", "https://example.com/page2"],
+  fullPage: true
+});
+```
+
+### User Flow Testing Tools
+
+#### 6. `navigation_flow_validator` 🧭
+
+Tests multi-step navigation sequences with validation.
+
+```javascript
+const navResult = await mcp.callTool("navigation_flow_validator", {
+  startUrl: "https://example.com",
+  steps: [
+    { action: "click", selector: "a.products" },
+    { action: "wait", waitTime: 1000 },
+    { action: "click", selector: ".product-item" }
+  ],
+  captureScreenshots: true
+});
+```
+
+#### 7. `api_endpoint_tester` 🔌
+
+Tests multiple API endpoints and verifies responses for backend validation.
+
 ```javascript
 const apiTest = await mcp.callTool("api_endpoint_tester", {
   url: "https://api.example.com/v1",
   endpoints: [
-    {
-      path: "/users",
-      method: "GET"
-    },
-    {
-      path: "/users",
-      method: "POST",
-      data: {
-        name: "Test User",
-        email: "test@example.com"
-      }
-    },
-    {
-      path: "/users/1",
-      method: "PUT",
-      data: {
-        name: "Updated Name"
-      }
-    }
+    { path: "/users", method: "GET" },
+    { path: "/products", method: "GET" }
   ],
-  authToken: "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+  authToken: "Bearer token123"
 });
 ```
 
-### 5. `navigation_flow_validator`
+### DOM and Performance Analysis
 
-Tests a sequence of user actions across multiple pages.
+#### 8. `dom_inspector` 🔬
 
-**Parameters:**
-- `startUrl` (string): URL to start the navigation flow from
-- `steps`: Array of step objects:
-  - `action` (string): Action to perform
-  - `selector` (string, optional): CSS selector
-  - `value` (string, optional): Value to input
-  - `url` (string, optional): URL to navigate to
-  - `script` (string, optional): JavaScript to evaluate
-  - `waitTime` (number, optional): Time to wait in ms
-- `captureScreenshots` (boolean, optional): Whether to capture screenshots
-- `includeConsole` (boolean, optional): Whether to include console logs
-- `device` (string, optional): Device to emulate
+Inspects DOM elements and their properties in detail.
 
-**Example:**
-```javascript
-const navFlow = await mcp.callTool("navigation_flow_validator", {
-  startUrl: "https://example.com",
-  steps: [
-    { action: "click", selector: "a.login-link" },
-    { action: "wait", waitTime: 1000 },
-    { action: "fill", selector: "#username", value: "testuser" },
-    { action: "fill", selector: "#password", value: "password123" },
-    { action: "click", selector: "button[type='submit']" },
-    { action: "wait", waitTime: 2000 },
-    { action: "evaluate", script: "return document.title" }
-  ],
-  captureScreenshots: true,
-  includeConsole: true
-});
-```
-
-### 6. `dom_inspector`
-
-Inspects DOM elements and their properties.
-
-**Parameters:**
-- `url` (string): URL to inspect
-- `selector` (string): CSS selector to inspect
-- `includeChildren` (boolean, optional): Whether to include children elements
-- `includeStyles` (boolean, optional): Whether to include computed styles
-- `waitTime` (number, optional): Time to wait before inspecting
-
-**Example:**
 ```javascript
 const elementInfo = await mcp.callTool("dom_inspector", {
   url: "https://example.com",
-  selector: "header nav.main-nav",
+  selector: "nav.main-menu",
   includeChildren: true,
   includeStyles: true
 });
 ```
 
-### Additional Tools
+#### 9. `console_monitor` 📟
 
-The server also provides these specialized tools:
+Monitors and captures console logs for error detection.
 
-- `console_monitor`: Monitor console logs on a page
-- `performance_analysis`: Analyze page performance metrics
-- `visual_comparison`: Compare two URLs visually
-- `batch_screenshot_urls`: Take screenshots of multiple URLs
-- `playwright_navigate`, `playwright_click`, etc.: Direct Playwright actions
-
-### Visual Element Comparison
-
-![Visual Comparison Screenshot](publicresources/screenshot2.png)
-
-The visual comparison tool allows you to detect differences between UI states, making it perfect for regression testing and verifying visual changes.
-
-## Integration with GLAMA
-
-AI Vision Debug UI Automation fully integrates with the GLAMA ecosystem, providing:
-
-- **One-click installation** through the GLAMA marketplace
-- **Pre-configured templates** for common UI testing scenarios
-- **Shareable configurations** across your team
-- **Standardized interfaces** for use with other GLAMA-compatible tools
-
-```json
-// Example GLAMA integration configuration
-{
-  "name": "mcp-ai-vision-debug-ui-automation",
-  "version": "1.0.0",
-  "settings": {
-    "port": 8080,
-    "debugMode": true,
-    "headless": true
-  }
-}
+```javascript
+const logs = await mcp.callTool("console_monitor", {
+  url: "https://example.com/app",
+  filterTypes: ["error", "warning"],
+  duration: 5000
+});
 ```
 
-## Integration with Smithery
+#### 10. `performance_analysis` ⚡
 
-Smithery compatibility enables seamless integration into CI/CD workflows:
+Measures and analyzes page load performance metrics.
 
+```javascript
+const perfMetrics = await mcp.callTool("performance_analysis", {
+  url: "https://example.com/dashboard",
+  iterations: 3
+});
+```
+
+### Low-Level Playwright Controls
+
+#### 11. `screenshot_local_files` 📁
+
+Takes screenshots of local HTML files.
+
+```javascript
+const localScreenshot = await mcp.callTool("screenshot_local_files", {
+  filePath: "/path/to/local/file.html"
+});
+```
+
+#### 12. Direct Playwright Actions
+
+Complete set of low-level Playwright controls for precise automation:
+
+- `playwright_navigate`: Navigate to specific URLs
+- `playwright_click`: Click on elements
+- `playwright_iframe_click`: Click elements inside iframes
+- `playwright_fill`: Fill form fields
+- `playwright_select`: Select dropdown options
+- `playwright_hover`: Hover over elements
+- `playwright_evaluate`: Run JavaScript in the page context
+- `playwright_console_logs`: Get console logs
+- `playwright_get_visible_text`: Extract visible text
+- `playwright_get_visible_html`: Get visible HTML
+- `playwright_go_back`: Navigate back
+- `playwright_go_forward`: Navigate forward
+- `playwright_press_key`: Press keyboard keys
+- `playwright_drag`: Drag and drop elements
+- `playwright_screenshot`: Take custom screenshots
+
+## Autonomous Debugging Workflows
+
+The MCP server can autonomously perform complete debugging workflows by combining tools. For example:
+
+### Visual Regression Testing
+```javascript
+// 1. Analyze the current version
+const currentAnalysis = await mcp.callTool("enhanced_page_analyzer", {...});
+
+// 2. Compare with previous version
+const comparisonResult = await mcp.callTool("visual_comparison", {...});
+
+// 3. Generate visual difference report
+const report = await mcp.callTool("ui_workflow_validator", {...});
+```
+
+### End-to-End User Flow Validation
+```javascript
+// 1. Start with login flow
+const loginResult = await mcp.callTool("ui_workflow_validator", {...});
+
+// 2. Validate core features
+const featureResults = await mcp.callTool("navigation_flow_validator", {...});
+
+// 3. Test API endpoints
+const apiResults = await mcp.callTool("api_endpoint_tester", {...});
+```
+
+### Performance Optimization
+```javascript
+// 1. Analyze initial performance
+const initialPerformance = await mcp.callTool("performance_analysis", {...});
+
+// 2. Identify slow-loading elements
+const elementPerformance = await mcp.callTool("dom_inspector", {...});
+
+// 3. Monitor console for errors
+const consoleErrors = await mcp.callTool("console_monitor", {...});
+```
+
+## Visual Analysis Examples
+
+### Element Mapping
+![Element Mapping](publicresources/screenshot1.png)
+
+The MCP server automatically maps all interactive elements on a page, making it easy for an AI model to understand the UI structure.
+
+### Visual Comparison
+![Visual Comparison](publicresources/screenshot2.png)
+
+The visual comparison tool highlights differences between UI states, perfect for catching unexpected visual changes.
+
+## Integration Options
+
+### Integration with Smithery
 ```yaml
-# Example Smithery configuration
+# smithery.yaml configuration
 startCommand:
   type: stdio
   configSchema:
     type: object
-    required:
-      - port
     properties:
       port:
         type: number
         description: Port number for the MCP server
+      debug:
+        type: boolean
+        description: Enable debug mode
 ```
 
-## Integration with Non-Vision Models
-
-This server can be used with any LLM, not just those with vision capabilities. The screenshot annotations and analysis are processed into structured text descriptions that can be consumed by text-only models. This allows standard LLMs to:
-
-1. Understand page structures and layouts
-2. Locate interactive elements by descriptive attributes
-3. Execute precise UI testing workflows
-4. Analyze page contents and functionality
-
-## Example Workflow
-
-The following diagram illustrates a typical workflow:
-
-```
-┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
-│                 │    │                 │    │                 │
-│  AI Assistant   │◄───┤  MCP Gateway    │◄───┤  AI Vision      │
-│                 │    │                 │    │  Debug UI Auto  │
-└────────┬────────┘    └─────────────────┘    └────────┬────────┘
-         │                                             │
-         │                                             │
-         │                                             ▼
-┌────────▼────────┐                          ┌─────────────────┐
-│                 │                          │                 │
-│  User Interface │                          │  Web Browser    │
-│                 │                          │                 │
-└─────────────────┘                          └─────────────────┘
+### Integration with GLAMA
+```json
+// glama.json configuration
+{
+  "name": "mcp-ai-vision-debug-ui-automation",
+  "version": "1.0.2",
+  "settings": {
+    "port": 8080,
+    "headless": true,
+    "maxConcurrentSessions": 5
+  }
+}
 ```
 
-## Troubleshooting
+### Integration with Non-Vision Models
+The MCP server converts visual information into structured data that can be used by any AI model, even those without vision capabilities:
 
-- **Connection Issues**: Ensure the MCP server is running and accessible
-- **Playwright Errors**: If you encounter Playwright initialization errors, try reinstalling browsers with `npx playwright install --with-deps chromium`
-- **Memory Issues**: For large workflows, monitor memory usage and consider restarting the server if performance degrades
+```javascript
+// The model receives structured data about visual elements
+{
+  "interactiveElements": [
+    {
+      "tagName": "button",
+      "text": "Submit",
+      "bounds": {"x": 120, "y": 240, "width": 100, "height": 40},
+      "visible": true
+    },
+    // More elements...
+  ]
+}
+```
 
-### Common Errors
+## CI/CD Integration
 
-| Error | Solution |
-|-------|----------|
-| Browser launch failure | Check Playwright installation with `npx playwright install --with-deps` |
-| Connection timeout | Verify network connectivity and firewall settings |
-| Screenshot error | Ensure target URL is accessible and valid |
-| Element not found | Verify selector syntax and wait for page load |
+This MCP server includes GitHub Actions workflows for continuous integration and deployment:
 
-## CI/CD with GitHub Actions
-
-This project uses GitHub Actions for continuous integration and deployment. The following workflows are available:
-
-### Build and Test
-
-Automatically runs on every push and pull request to ensure code quality:
-- Builds the project with TypeScript
-- Runs all tests
-- Works on multiple Node.js versions (18.x, 20.x)
-
-### NPM Publishing
-
-Automatically publishes the package to npm when a new release is created:
-- Publishes the main package
-- Creates and publishes platform-specific variants
-- Can be manually triggered with specific version
-
-### Docker Image Publishing
-
-Creates and pushes Docker images:
-- Builds multi-platform images (amd64, arm64)
-- Automatically tags with version and latest
-- Pushes to Docker Hub
-
-### Smithery Publishing
-
-Publishes the package to Smithery:
-- Creates a properly formatted Smithery package
-- Uploads via Smithery API
-- Makes the server available for Smithery users
-
-To use these workflows manually, go to the Actions tab in the GitHub repository.
-
-## Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request.
+- **Build and Test**: Validates code quality
+- **NPM Publishing**: Automates package publishing
+- **Docker Publishing**: Creates and pushes Docker images
+- **Smithery Publishing**: Deploys to Smithery platform
 
 ## License
 
-This project is licensed under the [ISC License](LICENSE). 
+This project is licensed under the [ISC License](LICENSE).
