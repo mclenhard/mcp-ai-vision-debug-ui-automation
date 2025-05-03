@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 set -e
 
-# MCP AI Vision Debug UI Automation
+# Visual UI Debug Agent MCP
 # Docker build and publish script
 
-IMAGE_NAME="samihalawa/mcp-ai-vision-debug-ui-automation"
+IMAGE_NAME="samihalawa/visual-ui-debug-agent-mcp"
 VERSION=$(node -p "require('./package.json').version")
 
 # Parse command-line arguments
@@ -21,7 +21,7 @@ done
 
 # Show help
 if [ "$HELP" = true ]; then
-  echo "Docker build and publish script for MCP AI Vision Debug UI Automation"
+  echo "Docker build and publish script for Visual UI Debug Agent MCP"
   echo ""
   echo "Usage: ./scripts/docker-publish.sh [options]"
   echo ""
@@ -41,7 +41,7 @@ fi
 TAG=${TAG:-$VERSION}
 PLATFORMS=${PLATFORMS:-"linux/amd64,linux/arm64"}
 
-echo "🚀 Building Docker image for MCP AI Vision Debug UI Automation"
+echo "🚀 Building Docker image for Visual UI Debug Agent MCP"
 echo "   Version: $VERSION"
 echo "   Tag: $TAG"
 echo "   Platforms: $PLATFORMS"

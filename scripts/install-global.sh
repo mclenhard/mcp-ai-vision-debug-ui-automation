@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 set -e
 
-# MCP AI Vision Debug UI Automation
+# Visual UI Debug Agent MCP
 # Global Installation Script
 
-echo "🚀 Installing MCP AI Vision Debug UI Automation globally"
-echo "======================================================="
+echo "🚀 Installing Visual UI Debug Agent MCP globally"
+echo "=============================================="
 
 # Check if npm is available
 if ! command -v npm &> /dev/null; then
@@ -14,7 +14,7 @@ if ! command -v npm &> /dev/null; then
 fi
 
 # Check if the package is already published to npm
-PACKAGE_INFO=$(npm view mcp-ai-vision-debug-ui-automation 2>/dev/null || echo "")
+PACKAGE_INFO=$(npm view visual-ui-debug-agent-mcp 2>/dev/null || echo "")
 
 if [ -z "$PACKAGE_INFO" ]; then
     echo "❌ Error: Package not found on npm registry. Has it been published?"
@@ -24,17 +24,17 @@ fi
 
 # Install the package globally
 echo "📦 Installing package globally..."
-npm install -g mcp-ai-vision-debug-ui-automation
+npm install -g visual-ui-debug-agent-mcp
 
 # Verify installation
-if command -v mcp-ai-vision-debug-ui-automation &> /dev/null; then
+if command -v visual-ui-debug-agent-mcp &> /dev/null; then
     echo "✅ Installation successful!"
     echo ""
     echo "You can now run the MCP server using:"
-    echo "mcp-ai-vision-debug-ui-automation"
+    echo "visual-ui-debug-agent-mcp"
     echo ""
     echo "To configure the server, use environment variables:"
-    echo "PORT=9090 DEBUG=true mcp-ai-vision-debug-ui-automation"
+    echo "PORT=9090 DEBUG=true visual-ui-debug-agent-mcp"
 else
     echo "❌ Installation failed. Please check for errors above."
     exit 1

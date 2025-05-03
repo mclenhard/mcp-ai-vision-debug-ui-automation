@@ -66,7 +66,7 @@ async function main() {
   console.log('📦 Creating package for Smithery...');
   const { stdout: tempDirOutput } = await exec('mktemp -d');
   const tempDir = tempDirOutput.trim();
-  const packageDir = path.join(tempDir, 'mcp-ai-vision-debug-ui-automation');
+  const packageDir = path.join(tempDir, 'visual-ui-debug-agent-mcp');
   
   await exec(`mkdir -p "${packageDir}"`);
   
@@ -86,11 +86,11 @@ async function main() {
   fs.writeFileSync(
     path.join(packageDir, 'smithery.json'),
     JSON.stringify({
-      name: 'mcp-ai-vision-debug-ui-automation',
+      name: 'visual-ui-debug-agent-mcp',
       version: '1.0.2',
-      description: 'MCP AI Vision Debug UI Automation - MCP server for visual analysis and automated UI testing',
+      description: 'Visual UI Debug Agent MCP - MCP server for visual analysis and automated UI testing',
       smithery: {
-        displayName: 'AI Vision Debug UI Automation',
+        displayName: 'Visual UI Debug Agent',
         description: 'Visual analysis and UI testing for AI models',
         icon: 'publicresources/icon.svg',
         startCommand: {
@@ -105,8 +105,8 @@ async function main() {
   // Create tarball
   console.log('📦 Creating tarball...');
   process.chdir(tempDir);
-  await exec('tar -czf mcp-ai-vision-debug-ui-automation.tgz mcp-ai-vision-debug-ui-automation');
-  const tarballPath = path.join(tempDir, 'mcp-ai-vision-debug-ui-automation.tgz');
+  await exec('tar -czf visual-ui-debug-agent-mcp.tgz visual-ui-debug-agent-mcp');
+  const tarballPath = path.join(tempDir, 'visual-ui-debug-agent-mcp.tgz');
   
   // Return to original directory
   process.chdir(rootDir);
@@ -119,8 +119,8 @@ async function main() {
       -H 'Authorization: Bearer ${apiKey}' \\
       -H 'Content-Type: multipart/form-data' \\
       -F 'package=@${tarballPath}' \\
-      -F 'id=mcp-ai-vision-debug-ui-automation' \\
-      -F 'description=MCP AI Vision Debug UI Automation'
+      -F 'id=visual-ui-debug-agent-mcp' \\
+      -F 'description=Visual UI Debug Agent MCP'
     `);
     
     console.log('API Response:', stdout);

@@ -1,12 +1,12 @@
 {
-  "name": "mcp-ai-vision-debug-ui-automation",
-  "version": "1.0.0",
-  "description": "MCP AI Vision Debug UI Automation - MCP server for visual analysis and automated UI testing",
+  "name": "visual-ui-debug-agent-mcp",
+  "version": "1.0.2",
+  "description": "Visual UI Debug Agent MCP - MCP server for visual analysis and automated UI testing",
   "author": "samihalawa",
   "license": "ISC",
-  "homepage": "https://github.com/samihalawa/mcp-ai-vision-debug-ui-automation",
-  "repository": "https://github.com/samihalawa/mcp-ai-vision-debug-ui-automation",
-  "icon": "https://raw.githubusercontent.com/samihalawa/mcp-ai-vision-debug-ui-automation/main/publicresources/icon.png",
+  "homepage": "https://github.com/samihalawa/visual-ui-debug-agent-mcp",
+  "repository": "https://github.com/samihalawa/visual-ui-debug-agent-mcp",
+  "icon": "https://raw.githubusercontent.com/samihalawa/visual-ui-debug-agent-mcp/main/publicresources/icon.png",
   "tags": [
     "ai",
     "vision",
@@ -62,15 +62,15 @@
     "methods": [
       {
         "type": "npm",
-        "command": "npm install -g ai-vision-debug-ui-automation"
+        "command": "npm install -g visual-ui-debug-agent-mcp"
       },
       {
         "type": "docker",
-        "command": "docker pull samihalawa/ai-vision-debug-ui-automation:latest"
+        "command": "docker pull samihalawa/visual-ui-debug-agent-mcp:latest"
       },
       {
         "type": "git",
-        "command": "git clone https://github.com/samihalawa/ai-vision-debug-ui-automation.git"
+        "command": "git clone https://github.com/samihalawa/visual-ui-debug-agent-mcp.git"
       }
     ],
     "requirements": [

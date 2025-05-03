@@ -1,14 +1,14 @@
 {
   "schemaVersion": 1,
   "type": "mcp-server",
-  "id": "mcp-ai-vision-debug-ui-automation",
-  "version": "1.0.0",
-  "name": "MCP AI Vision Debug UI Automation",
+  "id": "visual-ui-debug-agent-mcp",
+  "version": "1.0.2",
+  "name": "Visual UI Debug Agent MCP",
   "description": "MCP server for visual analysis and automated UI testing with Playwright",
   "author": "samihalawa",
   "license": "ISC",
-  "repository": "https://github.com/samihalawa/mcp-ai-vision-debug-ui-automation",
-  "documentation": "https://github.com/samihalawa/mcp-ai-vision-debug-ui-automation#readme",
+  "repository": "https://github.com/samihalawa/visual-ui-debug-agent-mcp",
+  "documentation": "https://github.com/samihalawa/visual-ui-debug-agent-mcp#readme",
   "keywords": [
     "mcp",
     "ai",
@@ -22,13 +22,13 @@
   "installMethods": [
     {
       "type": "npm",
-      "package": "mcp-ai-vision-debug-ui-automation",
-      "command": "npx mcp-ai-vision-debug-ui-automation"
+      "package": "visual-ui-debug-agent-mcp",
+      "command": "npx visual-ui-debug-agent-mcp"
     },
     {
       "type": "docker",
-      "image": "samihalawa/mcp-ai-vision-debug-ui-automation:latest",
-      "command": "docker run -p 8080:8080 samihalawa/mcp-ai-vision-debug-ui-automation:latest"
+      "image": "samihalawa/visual-ui-debug-agent-mcp:latest",
+      "command": "docker run -p 8080:8080 samihalawa/visual-ui-debug-agent-mcp:latest"
     }
   ],
   "tools": [

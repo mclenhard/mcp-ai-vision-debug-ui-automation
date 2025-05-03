@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 set -e
 
-# MCP AI Vision Debug UI Automation
+# Visual UI Debug Agent MCP
 # All-in-one deployment script
 
-echo "🚀 MCP AI Vision Debug UI Automation Deployment Tool"
-echo "=================================================="
+echo "🚀 Visual UI Debug Agent MCP Deployment Tool"
+echo "============================================"
 
 # Parse command-line arguments
 VERSION=""
@@ -110,77 +110,42 @@ publish_docker() {
     fi
     
     # Build and push
-    docker buildx build --platform $PLATFORM -t samihalawa/mcp-ai-vision-debug-ui-automation:$TAG . --push
+    docker buildx build --platform $PLATFORM -t samihalawa/visual-ui-debug-agent-mcp:$TAG . --push
     
     # Tag as latest if it's a version tag
     if [[ $TAG =~ ^v?[0-9]+\.[0-9]+\.[0-9]+ ]] && [ "$TAG" != "latest" ]; then
-      docker buildx build --platform $PLATFORM -t samihalawa/mcp-ai-vision-debug-ui-automation:latest . --push
+      docker buildx build --platform $PLATFORM -t samihalawa/visual-ui-debug-agent-mcp:latest . --push
     fi
   else
     echo "⚠️ Docker buildx not available, using standard build..."
-    docker build -t samihalawa/mcp-ai-vision-debug-ui-automation:$TAG .
-    docker push samihalawa/mcp-ai-vision-debug-ui-automation:$TAG
+    docker build -t samihalawa/visual-ui-debug-agent-mcp:$TAG .
+    docker push samihalawa/visual-ui-debug-agent-mcp:$TAG
     
     if [[ $TAG =~ ^v?[0-9]+\.[0-9]+\.[0-9]+ ]] && [ "$TAG" != "latest" ]; then
-      docker tag samihalawa/mcp-ai-vision-debug-ui-automation:$TAG samihalawa/mcp-ai-vision-debug-ui-automation:latest
-      docker push samihalawa/mcp-ai-vision-debug-ui-automation:latest
+      docker tag samihalawa/visual-ui-debug-agent-mcp:$TAG samihalawa/visual-ui-debug-agent-mcp:latest
+      docker push samihalawa/visual-ui-debug-agent-mcp:latest
     fi
   fi
   
   echo "✅ Published to Docker Hub successfully!"
 }
 
-# Cross-platform publish function
+# Cross-platform publish function (simplified - just publishes the universal package)
 publish_cross_platform() {
-  echo "🌐 Building and publishing platform-specific packages..."
+  echo "🌐 Publishing universal package compatible with all platforms..."
   
-  # Function to build and publish platform-specific package
-  build_platform_package() {
-    PLAT="$1"
-    ARCHITECTURE="$2"
-    
-    echo "📄 Creating package for $PLAT-$ARCHITECTURE..."
-    
-    # Create platform-specific package.json
-    TEMP_PKG=$(node -e "
-      const pkg = require('./package.json');
-      pkg.name = 'mcp-ai-vision-debug-ui-automation-$PLAT-$ARCHITECTURE';
-      pkg.os = ['$PLAT'];
-      pkg.cpu = ['$ARCHITECTURE'];
-      console.log(JSON.stringify(pkg, null, 2));
-    ")
-    
-    # Save original package.json
-    ORIGINAL_PKG=$(cat package.json)
-    
-    # Replace with platform-specific version
-    echo "$TEMP_PKG" > package.json
-    
-    # Publish with auth if available
-    if [ -f .npmrc.publish ]; then
-      echo "🔑 Using authentication from .npmrc.publish"
-      cp .npmrc.publish .npmrc
-      npm publish
-      # Remove temporary .npmrc to avoid committing tokens
-      rm .npmrc
-    else
-      npm publish
-    fi
-    
-    # Restore original package.json
-    echo "$ORIGINAL_PKG" > package.json
-    
-    echo "✅ Platform package for $PLAT-$ARCHITECTURE published!"
-  }
+  # Publish with auth if available
+  if [ -f .npmrc.publish ]; then
+    echo "🔑 Using authentication from .npmrc.publish"
+    cp .npmrc.publish .npmrc
+    npm publish
+    # Remove temporary .npmrc to avoid committing tokens
+    rm .npmrc
+  else
+    npm publish
+  fi
   
-  # Build and publish for each platform
-  build_platform_package "darwin" "x64"
-  build_platform_package "darwin" "arm64"
-  build_platform_package "linux" "x64"
-  build_platform_package "linux" "arm64"
-  build_platform_package "win32" "x64"
-  
-  echo "✅ Cross-platform packages published successfully!"
+  echo "✅ Package published successfully!"
 }
 
 # Main execution

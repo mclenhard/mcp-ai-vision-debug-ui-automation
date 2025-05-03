@@ -1,6 +1,6 @@
-# MCP AI Vision Debug UI Automation
+# Visual UI Debug Agent MCP
 
-[![MCP Server](https://img.shields.io/badge/MCP-AI%20Vision%20Debug-blue)](https://github.com/samihalawa/mcp-ai-vision-debug-ui-automation) [![GLAMA Compatible](https://img.shields.io/badge/GLAMA-Compatible-green)](https://github.com/samihalawa/mcp-ai-vision-debug-ui-automation) [![Smithery Compatible](https://img.shields.io/badge/Smithery-Compatible-orange)](https://smithery.ai/docs/config)
+[![MCP Server](https://img.shields.io/badge/MCP-Visual%20UI%20Debug-blue)](https://github.com/samihalawa/visual-ui-debug-agent-mcp) [![GLAMA Compatible](https://img.shields.io/badge/GLAMA-Compatible-green)](https://github.com/samihalawa/visual-ui-debug-agent-mcp) [![Smithery Compatible](https://img.shields.io/badge/Smithery-Compatible-orange)](https://smithery.ai/docs/config)
 
 An autonomous debugging MCP server that empowers AI models to analyze, debug, and interact with web interfaces through Playwright. This server enables any AI model (even those without built-in vision capabilities) to visually inspect web pages, find UI bugs, test user workflows, and validate application performance - all without human intervention.
 
@@ -29,7 +29,7 @@ The easiest way to install this MCP server is through any MCP-compatible gateway
 
 ```bash
 # Example with Claude gateway
-claude-gateway install mcp-ai-vision-debug-ui-automation
+claude-gateway install visual-ui-debug-agent-mcp
 ```
 
 ### Quick Installation Script
@@ -37,7 +37,7 @@ claude-gateway install mcp-ai-vision-debug-ui-automation
 Use our one-line installation script:
 
 ```bash
-curl -s https://raw.githubusercontent.com/samihalawa/mcp-ai-vision-debug-ui-automation/main/scripts/install-global.sh | bash
+curl -s https://raw.githubusercontent.com/samihalawa/visual-ui-debug-agent-mcp/main/scripts/install-global.sh | bash
 ```
 
 ### NPM Installation
@@ -46,10 +46,10 @@ For global installation via npm:
 
 ```bash
 # Install globally
-npm install -g mcp-ai-vision-debug-ui-automation
+npm install -g visual-ui-debug-agent-mcp
 
 # Start the server
-mcp-ai-vision-debug-ui-automation
+visual-ui-debug-agent-mcp
 ```
 
 ### Docker Hub Installation
@@ -58,10 +58,10 @@ For containerized deployment:
 
 ```bash
 # Pull the image from Docker Hub
-docker pull samihalawa/mcp-ai-vision-debug-ui-automation:latest
+docker pull samihalawa/visual-ui-debug-agent-mcp:latest
 
 # Run the container
-docker run -p 8080:8080 samihalawa/mcp-ai-vision-debug-ui-automation:latest
+docker run -p 8080:8080 samihalawa/visual-ui-debug-agent-mcp:latest
 ```
 
 ### Smithery Integration
@@ -70,30 +70,13 @@ This package is fully Smithery-compatible using the included configuration file:
 
 ```bash
 # Install with Smithery
-smithery install mcp-ai-vision-debug-ui-automation
+smithery install visual-ui-debug-agent-mcp
 
 # Or run with your API key
 npm run smithery:key YOUR_SMITHERY_API_KEY
 ```
 
 For full installation and usage instructions, see the [Smithery Integration Guide](./SMITHERY-GUIDE.md).
-
-### Cross-Platform Support
-
-Platform-specific packages are available for all major platforms:
-
-```bash
-# For macOS (Intel or Apple Silicon)
-npm install -g mcp-ai-vision-debug-ui-automation-darwin-x64
-npm install -g mcp-ai-vision-debug-ui-automation-darwin-arm64
-
-# For Linux
-npm install -g mcp-ai-vision-debug-ui-automation-linux-x64
-npm install -g mcp-ai-vision-debug-ui-automation-linux-arm64
-
-# For Windows
-npm install -g mcp-ai-vision-debug-ui-automation-win32-x64
-```
 
 ## Complete Tool Reference
 
@@ -342,7 +325,7 @@ startCommand:
 ```json
 // glama.json configuration
 {
-  "name": "mcp-ai-vision-debug-ui-automation",
+  "name": "visual-ui-debug-agent-mcp",
   "version": "1.0.2",
   "settings": {
     "port": 8080,

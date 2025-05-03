@@ -1,12 +1,12 @@
 {
-  "name": "mcp-ai-vision-debug-ui-automation",
+  "name": "visual-ui-debug-agent-mcp",
   "version": "1.0.2",
-  "description": "MCP AI Vision Debug UI Automation - MCP server for visual analysis and automated UI testing",
+  "description": "Visual UI Debug Agent MCP - MCP server for visual analysis and automated UI testing",
   "main": "build/index.js",
   "type": "module",
   "bin": {
-    "mcp-ai-vision-debug-ui-automation": "build/index.js",
-    "mcp-ai-vision-debug-ui-automation-smithery": "scripts/start-smithery.js"
+    "visual-ui-debug-agent-mcp": "build/index.js",
+    "visual-ui-debug-agent-mcp-smithery": "scripts/start-smithery.js"
   },
   "scripts": {
     "build": "tsc && shx chmod +x build/index.js",
@@ -32,7 +32,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/samihalawa/mcp-ai-vision-debug-ui-automation.git"
+    "url": "https://github.com/samihalawa/visual-ui-debug-agent-mcp.git"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.4.1",
