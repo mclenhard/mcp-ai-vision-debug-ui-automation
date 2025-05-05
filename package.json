@@ -40,7 +40,8 @@
     "jimp": "^0.22.10",
     "node-fetch": "^3.3.2",
     "playwright": "^1.40.0",
-    "zod": "^3.22.4"
+    "zod": "^3.22.4",
+    "mcp-evals": "^1.0.18"
   },
   "devDependencies": {
     "@types/jimp": "^0.2.28",
